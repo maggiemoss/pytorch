@@ -308,6 +308,28 @@ class BuildOptionsBase:
     def get_compile_only(self) -> bool:
         return self._compile_only
 
+    def save_flags_to_file(self, file) -> None:
+        attrs = OrderedDict(
+            [
+                ("CPP_COMPILER", self.get_compiler()),
+                ("DEFINATIONS", self.get_definations()),
+                ("INCLUDE_DIRS", self.get_include_dirs()),
+                ("CFLAGS", self.get_cflags()),
+                ("LDFLAGS", self.get_ldflags()),
+                ("LIBRARY_DIRS", self.get_library_dirs()),
+                ("LIBRARIES", self.get_libraries()),
+                ("PASSTHROUGH_ARGS", self.get_passthrough_args()),
+                ("AOT_MODE", self.get_aot_mode()),
+                ("USE_ABSOLUTE_PATH", self.get_use_absolute_path()),
+                ("COMPILE_ONLY", self.get_compile_only()),
+            ]
+        )
+
+        with open(save_flags_to_file, "w") as f:
+            f.write("\n".join(
+                    f'{key} = "{value}"' for key, value in attrs.items()
+                )
+            )
 
 def _get_warning_all_cflag(warning_all: bool = True) -> List[str]:
     if not _IS_WINDOWS:

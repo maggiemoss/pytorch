@@ -26,6 +26,7 @@ import textwrap
 import threading
 import warnings
 from bisect import bisect_right
+from collections import OrderedDict
 from copy import copy
 from ctypes import c_void_p, cdll, CDLL
 from functools import partial
@@ -1486,6 +1487,7 @@ def cpp_compile_command(
     use_absolute_path: bool = False,
     use_mmap_weights: bool = False,
     extra_flags: Sequence[str] = (),
+    save_flags_to_file=None,
 ) -> str:
     ipaths, lpaths, libs, macros, build_arch_flags = get_include_and_linking_paths(
         include_pytorch, vec_isa, cuda, aot_mode
@@ -1819,6 +1821,10 @@ class AotCodeCompiler:
                 os.chmod(output_o, 0o644)
             else:
                 run_command_and_check(compile_cmd)
+            
+            if config.aot_inductor.package:
+                compile_flags = os.path.splitext(input_path)[0] + "_compile_flags"
+                object_builder.save_flags_to_file(compile_flags)
 
             def _to_bytes(t: torch.Tensor, all_cuda: bool) -> bytes:
                 def _pad_to_alignment(raw_bytes):
@@ -1868,6 +1874,7 @@ class AotCodeCompiler:
                     int, torch.randint(0, torch.iinfo(torch.int64).max, (1,)).item()
                 )
                 aot_constants = struct.pack("qq", consts_size + 8, magic_number)
+
             consts_o = {
                 "linux": _compile_consts_linux,
                 "darwin": _compile_consts_darwin,
@@ -1887,6 +1894,11 @@ class AotCodeCompiler:
             )
             link_cmd = so_builder.get_command_line()
             output_so = so_builder.get_target_file_path()
+            
+            if config.aot_inductor.package:
+                linker_flags = os.path.splitext(input_path)[0] + "_linker_flags"
+                so_builder.save_flags_to_file(linker_flags)
+
             log.debug("aot linkage command: %s", link_cmd)
             if fbcode_aot_cpu_re:
                 compile_file([output_o, consts_o], output_so, link_cmd.split())
