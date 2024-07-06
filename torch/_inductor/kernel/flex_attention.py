@@ -5,7 +5,10 @@ import logging
 from enum import auto, Enum
 from typing import Any, List, Tuple
 
+import sympy
+
 import torch
+from torch._inductor.virtualized import V
 from .. import config
 from ..ir import (
     ComputedBuffer,
@@ -18,6 +21,7 @@ from ..ir import (
     TensorBox,
 )
 from ..lowering import empty_strided, lowerings, register_lowering
+from ..runtime.runtime_utils import next_power_of_2
 from ..select_algorithm import autotune_select_algorithm, TritonTemplate
 
 log = logging.getLogger(__name__)
@@ -369,6 +373,50 @@ flex_attention_template = TritonTemplate(
  """,
 )
 
+def _use_flex_decoding(query):
+    # Decide which kernel to use, return true if use flex decoding kernel.
+    return V.graph.sizevars.evaluate_expr(sympy.Le(query.get_size()[-2], 32))
+
+
+def filtered_configs(
+    b: int,
+    h: int,
+    m: int,
+    d: int,
+    n: int,
+    configs: List[Tuple[int, int, int, int]],
+):
+    """Filter out configs that are too large for input size"""
+    min_block_size = 32
+    m = max(
+        next_power_of_2(
+            V.graph.sizevars.size_hint(
+                m, fallback=torch._inductor.config.unbacked_symint_fallback  # type: ignore[arg-type]
+            )
+        ),
+        min_block_size,
+    )
+
+    n = max(
+        next_power_of_2(
+            V.graph.sizevars.size_hint(
+                n, fallback=torch._inductor.config.unbacked_symint_fallback  # type: ignore[arg-type]
+            )
+        ),
+        min_block_size,
+    )
+
+    filtered_configs = []
+
+    for BLOCK_M, BLOCK_N, num_warps, num_stages in configs:
+        # shrink configs for small inputs
+        BLOCK_M = max(min(BLOCK_M, m), min_block_size)
+        BLOCK_N = max(min(BLOCK_N, n), min_block_size)
+        if (BLOCK_M, BLOCK_N, num_warps, num_stages) not in filtered_configs:
+            filtered_configs.append((BLOCK_M, BLOCK_N, num_warps, num_stages))
+
+    return filtered_configs
+
 
 _h100_default_config = {
     (torch.float32, 64): (128, 32, 4, 3),
@@ -475,6 +523,7 @@ def create_indices_fake(x) -> torch.Tensor:
     indices = indices.expand(x.get_size()).contiguous()
     return indices
 
+from torch._inductor.kernel.flex_decoding import create_flex_decoding_kernel
 
 # TODO: We probably also need a layout constraint?
 @register_lowering(torch.ops.higher_order.flex_attention, type_promotion_kind=None)
@@ -518,6 +567,12 @@ def flex_attention(*args, **kwargs):
     subgraph_buffer = build_subgraph_buffer(
         args, placeholder_inps, subgraph, graph_type=SubgraphType.FWD
     )
+
+    if _use_flex_decoding(query):
+        return create_flex_decoding_kernel(
+            subgraph_buffer, query, key, value, subgraph, *other_buffers
+        )
+
     layout = FixedLayout(
         query.get_device(),
         query.get_dtype(),
@@ -547,8 +602,14 @@ def flex_attention(*args, **kwargs):
     # Note, we don't need to pass in the captured buffers explicitly
     # because they're implicitly added by the score_mod function
     # We do need to explicitly pass it in for autotuning though.
-
-    for BLOCK_M, BLOCK_N, num_warps, num_stages in configs:
+    for BLOCK_M, BLOCK_N, num_warps, num_stages in filtered_configs(
+        b=query.get_size()[0],
+        h=query.get_size()[1],
+        m=query.get_size()[-2],
+        d=query.get_size()[-1],
+        n=key.get_size()[-2],
+        configs=configs,
+    ):
         if SPARSE_KV_BLOCK_SIZE % BLOCK_N != 0 or SPARSE_Q_BLOCK_SIZE % BLOCK_M != 0:
             continue
         # Work around https://github.com/pytorch/pytorch/issues/129625
