@@ -1,6 +1,8 @@
 # Copyright (c) Meta Platforms, Inc. and affiliates
 import contextlib
 import functools
+import itertools
+import logging
 import operator
 import warnings
 from typing import cast, Dict, List, Optional, Sequence, Tuple, TYPE_CHECKING
@@ -36,6 +38,7 @@ except ImportError:
     from torch.utils import _pytree as pytree  # type: ignore[no-redef]
 
 aten = torch.ops.aten
+logger = logging.getLogger(__name__)
 
 
 def decompose_handler(
@@ -113,9 +116,21 @@ class OpDispatcher:
 
         # extract local tensor and sharding infos to a OpInfo
         op_info = self.unwrap_to_op_info(op_call, args, kwargs)
+        if logger.isEnabledFor(logging.DEBUG):
+            tensor_args = ""
+            for idx, arg in enumerate(
+                itertools.chain(op_info.local_args, op_info.local_kwargs)
+            ):
+                if isinstance(arg, dtensor.DTensor):
+                    tensor_args += f"\n  arg_{idx} (dtensor): {arg.shape=} {arg._spec=}"
+                elif isinstance(arg, torch.Tensor):
+                    tensor_args += f"\n  arg_{idx} (tensor): {arg.shape=}"
+
+            logger.debug("Dispatching op_call: %s%s", op_call, tensor_args)
 
         self.sharding_propagator.propagate(op_info)
         output_sharding = op_info.output_sharding
+        logger.debug("output_sharding for %s: %s", op_call, output_sharding)
         assert output_sharding is not None, "output sharding should not be None"
 
         mesh = op_info.mesh
