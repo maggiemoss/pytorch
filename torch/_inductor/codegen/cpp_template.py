@@ -114,6 +114,14 @@ class CppTemplate(KernelTemplate):
                 #include "c10/util/Unroll.h"
             """
         )
+        if config.abi_compatible:
+            if config.c_shim_version == "1":
+                res.splice("#include <torch/csrc/inductor/aoti_torch/c/shim.h>")
+            else:
+                device = "cpu"
+                res.splice(
+                    f"#include <torch/csrc/inductor/aoti_torch/generated/c_shim_{device}.h>"
+                )
         enable_kernel_profile = (
             config.cpp.enable_kernel_profile and sys.platform == "linux"
         )
