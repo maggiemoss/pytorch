@@ -2,7 +2,10 @@
 
 from typing import Optional
 
+# pyrefly: ignore  # import-error
 from torchfuzz.operators.base import Operator
+
+# pyrefly: ignore  # import-error
 from torchfuzz.tensor_fuzzer import Spec
 
 

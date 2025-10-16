@@ -5,7 +5,10 @@ from typing import Optional
 
 import torch
 
+# pyrefly: ignore  # import-error
 from torchfuzz.operators.base import Operator
+
+# pyrefly: ignore  # import-error
 from torchfuzz.tensor_fuzzer import ScalarSpec, Spec
 
 
@@ -35,6 +38,7 @@ class ScalarPointwiseOperator(Operator):
             )
 
         # Use shared type promotion utility
+        # pyrefly: ignore  # import-error
         from torchfuzz.type_promotion import get_scalar_promotion_pairs
 
         supported_types = get_scalar_promotion_pairs(output_spec.dtype)

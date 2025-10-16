@@ -5,7 +5,10 @@ from typing import Optional
 
 import torch
 
+# pyrefly: ignore  # import-error
 from torchfuzz.operators.base import Operator
+
+# pyrefly: ignore  # import-error
 from torchfuzz.tensor_fuzzer import Spec, TensorSpec
 
 
@@ -394,6 +397,7 @@ class LayerNormOperator(Operator):
         # Cast to list[Spec] to fix type checking
         from typing import cast
 
+        # pyrefly: ignore  # redundant-cast
         return cast(list[Spec], specs)
 
     def codegen(
@@ -479,6 +483,7 @@ class RMSNormOperator(Operator):
 
         from typing import cast
 
+        # pyrefly: ignore  # redundant-cast
         return cast(list[Spec], specs)
 
     def codegen(
@@ -703,6 +708,7 @@ class BatchNormOperator(Operator):
 
         from typing import cast
 
+        # pyrefly: ignore  # redundant-cast
         return cast(list[Spec], specs)
 
     def codegen(
@@ -793,6 +799,7 @@ class GroupNormOperator(Operator):
 
         from typing import cast
 
+        # pyrefly: ignore  # redundant-cast
         return cast(list[Spec], specs)
 
     def codegen(

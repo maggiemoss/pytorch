@@ -3,6 +3,7 @@
 from abc import ABC, abstractmethod
 from typing import Optional
 
+# pyrefly: ignore  # import-error
 from torchfuzz.tensor_fuzzer import Spec
 
 

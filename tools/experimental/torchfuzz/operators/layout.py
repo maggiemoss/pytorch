@@ -3,7 +3,10 @@
 import random
 from typing import Optional
 
+# pyrefly: ignore  # import-error
 from torchfuzz.operators.base import Operator
+
+# pyrefly: ignore  # import-error
 from torchfuzz.tensor_fuzzer import fuzz_tensor_size, Spec, TensorSpec
 
 
@@ -152,6 +155,7 @@ class ReshapeOperator(LayoutOperatorBase):
                 input_size = (output_numel,)
 
         # Create input tensor spec with compatible stride
+        # pyrefly: ignore  # import-error
         from torchfuzz.tensor_fuzzer import fuzz_valid_stride
 
         input_stride = fuzz_valid_stride(input_size)
@@ -241,6 +245,7 @@ class FlattenOperator(LayoutOperatorBase):
                     input_size = (output_numel,)
 
         # Create input tensor spec
+        # pyrefly: ignore  # import-error
         from torchfuzz.tensor_fuzzer import fuzz_valid_stride
 
         input_stride = fuzz_valid_stride(tuple(input_size))
@@ -294,6 +299,7 @@ class SqueezeOperator(LayoutOperatorBase):
         input_size.insert(pos, 1)
 
         # Create input tensor spec
+        # pyrefly: ignore  # import-error
         from torchfuzz.tensor_fuzzer import fuzz_valid_stride
 
         input_stride = fuzz_valid_stride(tuple(input_size))
@@ -367,6 +373,7 @@ class UnsqueezeOperator(LayoutOperatorBase):
             input_size = tuple(input_size)
 
         # Create input tensor spec
+        # pyrefly: ignore  # import-error
         from torchfuzz.tensor_fuzzer import fuzz_valid_stride
 
         if input_size:

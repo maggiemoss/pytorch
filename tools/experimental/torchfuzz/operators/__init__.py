@@ -1,9 +1,18 @@
 """Torchfuzz operators module."""
 
+# pyrefly: ignore  # import-error
 from torchfuzz.operators.arg import ArgOperator
+
+# pyrefly: ignore  # import-error
 from torchfuzz.operators.base import Operator
+
+# pyrefly: ignore  # import-error
 from torchfuzz.operators.constant import ConstantOperator
+
+# pyrefly: ignore  # import-error
 from torchfuzz.operators.item import ItemOperator
+
+# pyrefly: ignore  # import-error
 from torchfuzz.operators.layout import (
     FlattenOperator,
     ReshapeOperator,
@@ -11,12 +20,16 @@ from torchfuzz.operators.layout import (
     UnsqueezeOperator,
     ViewOperator,
 )
+
+# pyrefly: ignore  # import-error
 from torchfuzz.operators.matrix_multiply import (
     AddmmOperator,
     BmmOperator,
     MatmulOperator,
     MMOperator,
 )
+
+# pyrefly: ignore  # import-error
 from torchfuzz.operators.nn_functional import (
     DropoutOperator,
     EmbeddingOperator,
@@ -25,6 +38,8 @@ from torchfuzz.operators.nn_functional import (
     ReLUOperator,
     SoftmaxOperator,
 )
+
+# pyrefly: ignore  # import-error
 from torchfuzz.operators.registry import (
     get_operator,
     list_operators,
@@ -34,6 +49,8 @@ from torchfuzz.operators.registry import (
     set_operator_weights,
     set_operator_weights_by_torch_op,
 )
+
+# pyrefly: ignore  # import-error
 from torchfuzz.operators.scalar_pointwise import (
     ScalarAddOperator,
     ScalarDivOperator,
@@ -41,6 +58,8 @@ from torchfuzz.operators.scalar_pointwise import (
     ScalarPointwiseOperator,
     ScalarSubOperator,
 )
+
+# pyrefly: ignore  # import-error
 from torchfuzz.operators.tensor_pointwise import (
     AddOperator,
     DivOperator,
