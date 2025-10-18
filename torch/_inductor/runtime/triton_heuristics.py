@@ -74,6 +74,7 @@ from .triton_compat import (
 )
 
 
+# pyrefly: ignore  # invalid-inheritance
 class InductorConfig(Config):
     """Inductor-specific Triton config with additional control flags"""
 
@@ -119,8 +120,11 @@ def lookup_autotune_config(size_hints, fn) -> Config | None:
             config_dict = lookup_table[fn_hash]
             block_configs = {k: v for k, v in config_dict.items() if "BLOCK" in k}
             cached_config = Config(
+                # pyrefly: ignore  # bad-argument-count
                 block_configs,
+                # pyrefly: ignore  # unexpected-keyword
                 num_warps=config_dict["num_warps"],
+                # pyrefly: ignore  # unexpected-keyword
                 num_stages=config_dict["num_stages"],
             )
 
@@ -170,6 +174,7 @@ def autotune_hints_to_configs(
                         device_props.warp_size if device_props.warp_size else 32
                     ),
                 )
+                # pyrefly: ignore  # unbound-name
                 for xyz in xyz_options
             )
 
@@ -256,6 +261,7 @@ def check_autotune_cache(
     return configs, autotune_cache, autotune_cache_info
 
 
+# pyrefly: ignore  # invalid-inheritance
 class CachingAutotuner(KernelInterface):
     """
     Simplified version of Triton autotuner that has no invalidation
@@ -404,6 +410,7 @@ class CachingAutotuner(KernelInterface):
             # If the best config isn't in our list of compile results,
             # it's likely because it was found by coordesc after the cache
             # already saved
+            # pyrefly: ignore  # missing-attribute
             if best_config.found_by_coordesc:
                 with dynamo_timed("CachingAutotuner.slow_precompile_config"):
                     if self.fn.fn is None:
@@ -487,10 +494,13 @@ class CachingAutotuner(KernelInterface):
                 triton_config = result.config
                 compiled_binary = result.kernel
                 assert len(self.size_hints) >= 2
+                # pyrefly: ignore  # missing-attribute
                 xblock = triton_config.kwargs.get("XBLOCK", 1)
                 reduction_kwargs = [
+                    # pyrefly: ignore  # missing-attribute
                     kwarg for kwarg in triton_config.kwargs if kwarg.startswith("R")
                 ]
+                # pyrefly: ignore  # missing-attribute
                 rblocks = [triton_config.kwargs[kwarg] for kwarg in reduction_kwargs]
                 total_block = (self.size_hints["x"] + xblock - 1) // xblock
                 nreg = getattr(compiled_binary, "n_regs", None)
@@ -519,6 +529,7 @@ class CachingAutotuner(KernelInterface):
                     continue
 
                 nreg_per_warp = nreg * warp_size
+                # pyrefly: ignore  # missing-attribute
                 nreg_per_block = nreg_per_warp * triton_config.num_warps
 
                 # Previously we set max_blocks_per_sm to 'max_threads_per_multi_processo / (32 * num_warps)'
@@ -541,8 +552,10 @@ class CachingAutotuner(KernelInterface):
 
                 # Reduce the largest Rn_BLOCK by a factor of 2.
                 largest_rkwarg: str = max(
+                    # pyrefly: ignore  # missing-attribute
                     reduction_kwargs, key=triton_config.kwargs.__getitem__
                 )
+                # pyrefly: ignore  # missing-attribute
                 new_config.kwargs[largest_rkwarg] //= 2
 
                 if seen_config_hashes is None:
@@ -570,6 +583,7 @@ class CachingAutotuner(KernelInterface):
                     """
                     assert hasattr(self, "_reload_kernel")
                     assert callable(self._reload_kernel)
+                    # pyrefly: ignore  # missing-attribute
                     self.fn = self._reload_kernel().fn
                 self.compile_results.append(self._precompile_config(new_config))  # noqa: B909
 
@@ -680,9 +694,12 @@ class CachingAutotuner(KernelInterface):
         instead
         """
         compile_meta = copy.deepcopy(self.triton_meta)
+        # pyrefly: ignore  # missing-attribute
         compile_meta["num_warps"] = cfg.num_warps
+        # pyrefly: ignore  # missing-attribute
         compile_meta["num_stages"] = cfg.num_stages
 
+        # pyrefly: ignore  # missing-attribute
         cfg_kwargs = cfg.kwargs
         if self.device_props.type == "hip":
             cfg_kwargs = {**cfg_kwargs}
@@ -783,6 +800,7 @@ class CachingAutotuner(KernelInterface):
         else:
             arch = compile_meta["cc"]
 
+        # pyrefly: ignore  # not-callable
         target = GPUTarget(
             compile_meta["device_type"],
             arch,
@@ -797,6 +815,7 @@ class CachingAutotuner(KernelInterface):
         }
 
         try:
+            # pyrefly: ignore  # missing-attribute
             binary = triton.compile(*compile_args, **compile_kwargs)
         except Exception:
             log.exception(
@@ -848,6 +867,7 @@ class CachingAutotuner(KernelInterface):
             result = StaticTritonCompileResult(
                 static_launcher, cfg, compile_meta, self.inductor_meta
             )
+            # pyrefly: ignore  # bad-return
             return result
 
         return TritonCompileResult(binary, cfg, compile_meta, self.inductor_meta)
@@ -1168,6 +1188,7 @@ class CachingAutotuner(KernelInterface):
         )
         asm = launcher.bin.asm.get(asm_type, None)
 
+        # pyrefly: ignore  # bad-argument-type
         CudaKernelParamCache.set(key, params, binary, bin_type, asm, asm_type)
         self.cuda_kernel_saved = True
 
@@ -1227,6 +1248,7 @@ class CachingAutotuner(KernelInterface):
             """
             assert hasattr(self, "_reload_kernel")
             assert callable(self._reload_kernel)
+            # pyrefly: ignore  # missing-attribute
             self.fn = self._reload_kernel().fn
 
         def benchmark_one_config(config):
@@ -1323,6 +1345,7 @@ class CachingAutotuner(KernelInterface):
             return self.fn[grid](
                 *args,
                 **kwargs,
+                # pyrefly: ignore  # missing-attribute
                 **self.configs[0].kwargs,
             )
 
@@ -1391,6 +1414,7 @@ class CachingAutotuner(KernelInterface):
                         # These are torch compiled triton kernels that definitely
                         # have block size configs. Dynamo does not currently
                         # trace user defined triton kernels when TRITON_INTERPRET=1
+                        # pyrefly: ignore  # missing-attribute
                         if x not in cfg.kwargs.keys():
                             new_signature.append(x)
                     elif i not in self.fn.constexprs:
@@ -1541,6 +1565,7 @@ class CompileResult(Generic[_T]):
         if "extra_launcher_args" in self.inductor_meta:
             def_args = [*def_args, *self.inductor_meta["extra_launcher_args"]]
 
+        # pyrefly: ignore  # bad-return
         return call_args, def_args, none_args
 
 
@@ -1586,6 +1611,7 @@ class StaticTritonCompileResult(CompileResult[StaticallyLaunchedCudaKernel]):
                 # Requires storing the entire binary
                 raise CannotStaticallyLaunchKernel("store_cubin is enabled")
 
+            # pyrefly: ignore  # missing-attribute
             if getattr(kernel.metadata, "launch_pdl", False) or getattr(
                 kernel.metadata, "launch_cooperative_grid", False
             ):
@@ -1595,7 +1621,9 @@ class StaticTritonCompileResult(CompileResult[StaticallyLaunchedCudaKernel]):
 
             cubin_location = os.path.join(
                 triton_cache_dir(triton_meta.get("device", 0)),
+                # pyrefly: ignore  # missing-attribute
                 triton_hash_to_path_key(kernel.hash),
+                # pyrefly: ignore  # missing-attribute
                 f"{kernel.src.fn.__name__}.cubin",
             )
 
@@ -1605,6 +1633,7 @@ class StaticTritonCompileResult(CompileResult[StaticallyLaunchedCudaKernel]):
                 )
 
             else:
+                # pyrefly: ignore  # missing-attribute
                 kernel._cubin_path = cubin_location
 
             try:
@@ -1754,6 +1783,7 @@ class TritonCompileResult(CompileResult[CompiledKernel]):
         kernel_state = {
             **kernel.__dict__,
             # See doc about serializing metadata above
+            # pyrefly: ignore  # missing-attribute
             "metadata": self._serialize_metadata(kernel.metadata),
             "packed_metadata": self._serialize_metadata(
                 getattr(kernel, "packed_metadata", None)
@@ -1791,17 +1821,22 @@ class TritonCompileResult(CompileResult[CompiledKernel]):
         cfg = self.config
         compile_meta = self.compile_meta
         binary = self.kernel
+        # pyrefly: ignore  # missing-attribute
         fn = binary.src.fn
+        # pyrefly: ignore  # missing-attribute
         binary._init_handles()
         (call_args, def_args, none_args) = self._get_arg_lists(
             fn.arg_names, fn.constexprs
         )
         binary_shared = (
+            # pyrefly: ignore  # missing-attribute
             binary.shared if hasattr(binary, "shared") else binary.metadata.shared
         )
 
         if knobs is None:
+            # pyrefly: ignore  # missing-attribute
             launch_enter = binary.__class__.launch_enter_hook
+            # pyrefly: ignore  # missing-attribute
             launch_exit = binary.__class__.launch_exit_hook
         else:
             launch_enter = knobs.runtime.launch_enter_hook
@@ -1814,6 +1849,7 @@ class TritonCompileResult(CompileResult[CompiledKernel]):
         import torch as torch_lib
 
         scope = {
+            # pyrefly: ignore  # missing-attribute
             "grid_meta": cfg.kwargs,
             "bin": binary,
             "launch_enter_hook": launch_enter,
@@ -1821,12 +1857,14 @@ class TritonCompileResult(CompileResult[CompiledKernel]):
             "metadata": (
                 binary.packed_metadata
                 if hasattr(binary, "packed_metadata")
+                # pyrefly: ignore  # missing-attribute
                 else binary.metadata
             ),
             "shared": binary_shared,
             "num_warps": (
                 binary.num_warps
                 if hasattr(binary, "num_warps")
+                # pyrefly: ignore  # missing-attribute
                 else binary.metadata.num_warps
             ),
             "cta_args": (
@@ -1891,15 +1929,24 @@ class TritonCompileResult(CompileResult[CompiledKernel]):
         launcher = self._gen_launcher_code(scope, def_args, runner_args)
 
         launcher = scope["launcher"]
+        # pyrefly: ignore  # missing-attribute
         launcher.config = cfg
+        # pyrefly: ignore  # missing-attribute
         launcher.n_regs = getattr(binary, "n_regs", None)
+        # pyrefly: ignore  # missing-attribute
         launcher.n_spills = getattr(binary, "n_spills", None)
+        # pyrefly: ignore  # missing-attribute
         launcher.shared = binary_shared
+        # pyrefly: ignore  # missing-attribute
         launcher.cache_hash = triton_hash_to_path_key(binary.hash)
+        # pyrefly: ignore  # missing-attribute
         launcher.store_cubin = self.inductor_meta.get("store_cubin", False)
         # store this global variable to avoid the high overhead of reading it when calling run
+        # pyrefly: ignore  # missing-attribute
         if launcher.store_cubin:
+            # pyrefly: ignore  # missing-attribute
             launcher.fn = fn
+            # pyrefly: ignore  # missing-attribute
             launcher.bin = binary
             if triton_version_uses_attrs_dict():
                 # arg filtering wasn't done above
@@ -1911,7 +1958,9 @@ class TritonCompileResult(CompileResult[CompiledKernel]):
                     if compile_meta["signature"].get(x, "constexpr") != "constexpr"
                     and x not in none_args
                 ]
+            # pyrefly: ignore  # missing-attribute
             launcher.def_args = def_args
+            # pyrefly: ignore  # missing-attribute
             launcher.call_args = call_args
             kernel_metadata = getattr(self.kernel, "metadata", None)
 
@@ -1929,7 +1978,9 @@ class TritonCompileResult(CompileResult[CompiledKernel]):
             profile_scratch: int | None = getattr(
                 kernel_metadata, "profile_scratch_size", None
             )
+            # pyrefly: ignore  # missing-attribute
             launcher.global_scratch = global_scratch
+            # pyrefly: ignore  # missing-attribute
             launcher.profile_scratch = profile_scratch
         return launcher
 
@@ -2054,6 +2105,7 @@ class DebugAutotuner(CachingAutotuner):
                 if num_gb is None:
                     num_gb = get_num_bytes(*args, num_in_out_args=num_in_out_ptrs) / 1e9
                 gb_per_s = num_gb / (ms / 1e3)
+                # pyrefly: ignore  # bad-assignment
                 self.cached = ms, num_gb, gb_per_s, kernel_name
                 collected_calls.append((ms, num_gb, gb_per_s, kernel_name))
                 log.info(
@@ -2074,6 +2126,7 @@ def hash_configs(configs: list[Config]):
     hasher = hashlib.sha256()
     for cfg in configs:
         hasher.update(
+            # pyrefly: ignore  # missing-attribute
             f"{sorted(cfg.kwargs.items())} {cfg.num_warps} {cfg.num_stages}\n".encode()
         )
     return hasher.hexdigest()
@@ -2118,8 +2171,11 @@ def cached_autotune(
 
         if "XBLOCK" not in inspect.signature(fn.fn).parameters:
             for tconfig in configs:
+                # pyrefly: ignore  # missing-attribute
                 if "XBLOCK" in tconfig.kwargs:
+                    # pyrefly: ignore  # missing-attribute
                     assert tconfig.kwargs["XBLOCK"] == 1
+                    # pyrefly: ignore  # missing-attribute
                     tconfig.kwargs.pop("XBLOCK")
 
         if inductor_meta.get("profile_bandwidth"):
@@ -2267,6 +2323,7 @@ def triton_config(
 
     maxGridSize = [2147483647, 65535, 65535]
 
+    # pyrefly: ignore  # bad-argument-type
     target = conditional_product(x, y, z)
     if conditional_product(*size_hints.values()) < target:
         target //= 8
@@ -2281,6 +2338,7 @@ def triton_config(
     # if we are below original block size, scale up where we can;
     # or if the calculated grid size is larger than the limit, we bump up the corresponding dimension
     while x < min(size_hints["x"], TRITON_MAX_BLOCK["X"]) and (
+        # pyrefly: ignore  # bad-argument-type
         x * maxGridSize[0] < size_hints["x"] or conditional_product(x, y, z) < target
     ):
         x *= 2
@@ -2289,6 +2347,7 @@ def triton_config(
         and y < min(size_hints["y"], TRITON_MAX_BLOCK["Y"])
         and (
             y * maxGridSize[1] < size_hints["y"]
+            # pyrefly: ignore  # bad-argument-type
             or conditional_product(x, y, z) < target
         )
     ):
@@ -2298,6 +2357,7 @@ def triton_config(
         and z < min(size_hints["z"], TRITON_MAX_BLOCK["Z"])
         and (
             z * maxGridSize[2] < size_hints["z"]
+            # pyrefly: ignore  # bad-argument-type
             or conditional_product(x, y, z) < target
         )
     ):
@@ -2306,6 +2366,7 @@ def triton_config(
     # Calculate num_warps if they are not hard passed to config
     if num_warps is None:
         num_warps = _num_warps(
+            # pyrefly: ignore  # bad-argument-type
             conditional_product(x, y, z) // num_elements_per_warp, min_num_warps=1
         )
     # we are going to arrive at 2 warps only if bs was too small due to
@@ -2314,6 +2375,7 @@ def triton_config(
     # given that this is a rare situation, don't expect this to affect perf
     # in general
     # see https://github.com/pytorch/pytorch/pull/97950
+    # pyrefly: ignore  # bad-argument-type
     if conditional_product(x, y, z) >= 128 and not torch.version.hip:
         num_warps = max(num_warps, 4)
     xnumel = size_hints["x"]
@@ -2322,9 +2384,11 @@ def triton_config(
 
     # Increase x to satisfy min_elem_per_thread requirements.
     block_size = max(
+        # pyrefly: ignore  # bad-argument-type
         conditional_product(x, y, z),
         min_elem_per_thread * _NUM_THREADS_PER_WARP * num_warps,
     )
+    # pyrefly: ignore  # bad-argument-type
     x *= math.ceil(block_size / conditional_product(x, y, z))
 
     x, _num_blocks = _check_max_grid_x(size_hints, x, num_warps)
@@ -2337,12 +2401,15 @@ def triton_config(
         cfg["ZBLOCK"] = z
     check_max_block(cfg)
     check_config(cfg, xnumel=xnumel, ynumel=ynumel, znumel=znumel)
+    # pyrefly: ignore  # bad-argument-count, unexpected-keyword
     config = Config(cfg, num_warps=num_warps, num_stages=num_stages)
 
     if torch.version.hip:
         if matrix_instr is not None:
+            # pyrefly: ignore  # missing-attribute
             config.kwargs["matrix_instr_nonkdim"] = matrix_instr
         if waves_per_eu is not None:
+            # pyrefly: ignore  # missing-attribute
             config.kwargs["waves_per_eu"] = waves_per_eu
 
     return config
@@ -2500,6 +2567,7 @@ def triton_config_tiled_reduction(
     )
     check_config(cfg, xnumel=size_hints["x"], ynumel=size_hints["y"])
     check_max_block(cfg)
+    # pyrefly: ignore  # bad-argument-count, unexpected-keyword
     return Config(cfg, num_warps=num_warps, num_stages=num_stages)
 
 
@@ -2515,25 +2583,33 @@ def _maybe_filter_configs_for_tma_restrictions(inductor_meta, configs: list[Conf
             }
 
         assert all(
+            # pyrefly: ignore  # missing-attribute
             block_type in configs[0].kwargs for block_type in tma_min_block_sizes.keys()
         )
 
         # Add a config that is guaranteed to compile
         example_config = configs[0]
+        # pyrefly: ignore  # missing-attribute
         config_block_sizes = {**example_config.kwargs}
         config_block_sizes.update(tma_min_block_sizes)
         new_configs = [
             Config(
+                # pyrefly: ignore  # bad-argument-count
                 config_block_sizes,
+                # pyrefly: ignore  # unexpected-keyword, missing-attribute
                 num_warps=example_config.num_warps,
+                # pyrefly: ignore  # unexpected-keyword, missing-attribute
                 num_stages=example_config.num_stages,
+                # pyrefly: ignore  # unexpected-keyword, missing-attribute
                 maxnreg=example_config.maxnreg,
+                # pyrefly: ignore  # unexpected-keyword, missing-attribute
                 pre_hook=example_config.pre_hook,
             )
         ]
         # Remove configs that will not compile
         for c in configs:
             if all(
+                # pyrefly: ignore  # missing-attribute
                 c.kwargs.get(block_type) >= min_block_value
                 for block_type, min_block_value in tma_min_block_sizes.items()
             ):
@@ -2689,6 +2765,7 @@ def make_matmul_triton_config(sizes: dict[str, int], num_warps: int, num_stages:
     }
     # Remove keys with None values (i.e., missing in sizes)
     config = {k: v for k, v in config.items() if v is not None}
+    # pyrefly: ignore  # bad-argument-count, unexpected-keyword
     return Config(config, num_warps=num_warps, num_stages=num_stages)
 
 
@@ -2945,6 +3022,7 @@ def match_target_block_product(
 
         block_sizes[dim] = min_block_size
         curr_block_product *= min_block_size
+        # pyrefly: ignore  # unsupported-operation
         relative_scores[dim] = score / total_score
 
     # Scale up dimensions by their relative scores until we reach the target
@@ -3179,6 +3257,7 @@ def cooperative_reduction(
             triton_meta=triton_meta,
         )
     for config in configs:
+        # pyrefly: ignore  # missing-attribute
         config.kwargs["RSPLIT"] = split
     # TODO(jansel): add more configs in max_autotune
 
@@ -3202,12 +3281,14 @@ def _persistent_reduction_configs(
 ):
     xnumel = size_hints["x"]
     rnumel = get_total_reduction_numel(size_hints)
+    # pyrefly: ignore  # missing-attribute
     loads_and_stores = inductor_meta.get("num_load", 0) + inductor_meta.get(
         "num_store", 0
     )
 
     MAX_PERSISTENT_BLOCK_NUMEL = 4096
 
+    # pyrefly: ignore  # missing-attribute
     if triton_meta.get("native_matmul"):
         if len(size_hints) == 3:
             return [
@@ -3222,6 +3303,7 @@ def _persistent_reduction_configs(
         else:
             raise NotImplementedError("native matmul only supports mm/bmm pattern")
 
+    # pyrefly: ignore  # missing-attribute
     max_autotune_enabled = inductor_meta.get("max_autotune") or inductor_meta.get(
         "max_autotune_pointwise"
     )
@@ -3246,7 +3328,9 @@ def _persistent_reduction_configs(
         ]
     else:
         configs = []
+        # pyrefly: ignore  # unsupported-operation
         assert "tiling_scores" in inductor_meta
+        # pyrefly: ignore  # unsupported-operation
         x_y_scores = {dim: inductor_meta["tiling_scores"][dim] for dim in ("x", "y")}
         for target_block_size in xblock_vals:
             if target_block_size * rnumel > MAX_PERSISTENT_BLOCK_NUMEL:
@@ -3306,6 +3390,7 @@ def _persistent_reduction_configs(
         # we don't need Rn_BLOCK for persistent reduction
         for prefix in size_hints:
             if prefix_is_reduction(prefix):
+                # pyrefly: ignore  # missing-attribute
                 c.kwargs.pop(f"{prefix.upper()}BLOCK")
 
     return configs
@@ -3370,8 +3455,11 @@ def split_scan(
     # Fixup configs to enforce the minimum Rn_BLOCK size
     min_rblock = inductor_meta.get("min_split_scan_rblock", 256)
     for cfg in configs:
+        # pyrefly: ignore  # missing-attribute
         for var in list(cfg.kwargs.keys()):
+            # pyrefly: ignore  # missing-attribute
             if var.startswith("R") and cfg.kwargs[var] < min_rblock:
+                # pyrefly: ignore  # missing-attribute
                 cfg.kwargs[var] = min_rblock
 
     configs = _maybe_filter_configs_for_tma_restrictions(inductor_meta, configs)
@@ -3414,6 +3502,7 @@ def template(
         )
     return cached_autotune(
         None,
+        # pyrefly: ignore  # missing-attribute
         [triton.Config({}, **config_args)],
         triton_meta=triton_meta,
         inductor_meta=inductor_meta,
@@ -3441,8 +3530,11 @@ def _pop_config_kwargs(config: dict[str, Any]) -> dict[str, Any]:
 
 def config_to_dict(config: Config) -> dict[str, Any]:
     config_dict = {
+        # pyrefly: ignore  # missing-attribute
         **config.kwargs,
+        # pyrefly: ignore  # missing-attribute
         "num_warps": config.num_warps,
+        # pyrefly: ignore  # missing-attribute
         "num_stages": config.num_stages,
     }
     if HAS_WARP_SPEC:
@@ -3457,6 +3549,7 @@ def config_to_dict(config: Config) -> dict[str, Any]:
 
 def config_from_dict(config: dict[str, Any]) -> Config:
     config = {**config}
+    # pyrefly: ignore  # bad-argument-count
     return Config(config, **_pop_config_kwargs(config))
 
 
@@ -3467,6 +3560,7 @@ def fixed_config(config, filename, triton_meta, inductor_meta):
     config = {**config}
     return cached_autotune(
         None,
+        # pyrefly: ignore  # missing-attribute
         [triton.Config(config, **_pop_config_kwargs(config))],
         triton_meta=triton_meta,
         inductor_meta=inductor_meta,
@@ -3482,6 +3576,7 @@ def user_autotune(
     Compile a user defined triton kernel
     """
     if len(configs) == 0:
+        # pyrefly: ignore  # missing-attribute
         configs = [triton.Config({})]
     else:
         configs = [*map(config_from_dict, configs)]
@@ -3502,6 +3597,7 @@ def foreach(triton_meta, num_warps, filename=None, inductor_meta=None):
     """
     return cached_autotune(
         None,
+        # pyrefly: ignore  # missing-attribute
         [triton.Config({}, num_stages=1, num_warps=num_warps)],
         triton_meta=triton_meta,
         inductor_meta=inductor_meta,
