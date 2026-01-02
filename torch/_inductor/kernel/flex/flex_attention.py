@@ -923,7 +923,7 @@ def flex_attention_backward(*args, **kwargs):
             **cur_kernel_options,
         )
     inputs_for_autotuning = (
-        # pyrefly: ignore [unsupported-operation]
+
         [
             query,
             key,

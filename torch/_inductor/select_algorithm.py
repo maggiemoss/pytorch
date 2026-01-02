@@ -437,7 +437,7 @@ class TritonTemplateKernel(TritonKernel):
             reduction_idx = None
             for i, prefix in enumerate(tiling):
                 rt = prefix_to_range_tree[prefix]
-                # pyrefly: ignore  # missing-argument
+
                 if rt.is_reduction:
                     reduction_idx = i
                     break
@@ -1233,7 +1233,7 @@ class TritonTemplateKernel(TritonKernel):
                                 val_shape[i],
                                 i,
                                 len(val_shape),
-                                # pyrefly: ignore [missing-argument]
+
                                 block_name=range_tree.symt.name,
                             )
                         )
@@ -1247,7 +1247,7 @@ class TritonTemplateKernel(TritonKernel):
                         )
                         # Update the val_shape information to use consistent naming
                         # after the remapping.
-                        # pyrefly: ignore [missing-argument]
+
                         val_shape_copy[i] = range_tree.symt.name
                     # pyrefly: ignore [bad-assignment]
                     val_shape = tuple(val_shape_copy)

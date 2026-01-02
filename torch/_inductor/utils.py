@@ -717,11 +717,11 @@ def cache_on_self(fn: Callable[Concatenate[Any, P], RV]) -> CachedMethod[P, RV]:
     return wrapper  # type: ignore[return-value]
 
 
-def cache_property_on_self(fn: Callable[P, RV]) -> CachedMethod[P, RV]:
+def cache_property_on_self(fn: Callable[Concatenate[Any, P], RV]) -> CachedMethod[P, RV]:
     """
     Variant of cache_on_self for properties. The only difference is the type signature.
     """
-    # pyrefly: ignore [bad-argument-type]
+
     return cache_on_self(fn)
 
 
@@ -2770,14 +2770,14 @@ def get_device_tflops(dtype: torch.dtype) -> float:
             return get_max_simd_tflops(torch.float32, sm_clock)
     else:
         if dtype in (torch.float16, torch.bfloat16) and SM80OrLater:
-            # pyrefly: ignore [missing-argument]
+
             return get_max_tensorcore_tflops(dtype)
 
         if torch.backends.cuda.matmul.allow_tf32:
-            # pyrefly: ignore [missing-argument]
+
             return get_max_tensorcore_tflops(torch.float32)
         else:
-            # pyrefly: ignore [missing-argument]
+
             return get_max_simd_tflops(torch.float32)
 
 
@@ -2791,7 +2791,7 @@ def get_gpu_dram_gbps() -> int:
 def get_gpu_shared_memory() -> int:
     from triton.runtime import driver
 
-    # pyrefly: ignore [missing-attribute]
+
     return driver.active.utils.get_device_properties(0).get("max_shared_mem", 0)
 
 

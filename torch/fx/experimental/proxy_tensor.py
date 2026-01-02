@@ -2077,7 +2077,7 @@ class _ModuleStackTracer(PythonKeyTracer):
                 # Class is modified to be a subclass of torch.nn.Module
                 # Warning: We blow away our own attributes here to mimic the base class
                 # - so don't expect `self.x` to do anything useful.
-                # pyrefly: ignore [no-matching-overload]
+
 
                 self.__class__ = type(
                     base.__class__.__name__,

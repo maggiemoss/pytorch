@@ -720,7 +720,7 @@ def _tuned_grouped_mm_common(
         if len(m2_size) == 2:
             m, k1 = m1_size
             k2, n = m2_size
-            # pyrefly: ignore [missing-attribute]
+
             g = offs.get_size()[0]
             k = V.graph.sizevars.check_equals(k1, k2)
             a_is_2d, b_is_2d = True, True

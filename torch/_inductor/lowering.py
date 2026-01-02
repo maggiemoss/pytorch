@@ -7586,7 +7586,7 @@ def with_effects(token, op, *args, **kwargs):
                     ):
                         return (
                             storage.data.get_example()
-                        )  # pyrefly: ignore[missing-attribute]
+                        )
                 except (AttributeError, NotImplementedError):
                     pass
                 # Fall back to returning the TensorBox itself if get_example fails

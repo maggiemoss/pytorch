@@ -581,7 +581,7 @@ class OpDispatcher:
         )
         op_info = OpInfo(
             compute_mesh,
-            # pyrefly: ignore [bad-argument-type]
+
             OpSchema(
                 op_call,
                 (
