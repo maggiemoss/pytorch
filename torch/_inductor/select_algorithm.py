@@ -1233,7 +1233,6 @@ class TritonTemplateKernel(TritonKernel):
                                 val_shape[i],
                                 i,
                                 len(val_shape),
-
                                 block_name=range_tree.symt.name,
                             )
                         )

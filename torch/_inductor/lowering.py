@@ -7584,9 +7584,7 @@ def with_effects(token, op, *args, **kwargs):
                     if hasattr(storage, "data") and hasattr(
                         storage.data, "get_example"
                     ):
-                        return (
-                            storage.data.get_example()
-                        )
+                        return storage.data.get_example()
                 except (AttributeError, NotImplementedError):
                     pass
                 # Fall back to returning the TensorBox itself if get_example fails

@@ -581,7 +581,6 @@ class OpDispatcher:
         )
         op_info = OpInfo(
             compute_mesh,
-
             OpSchema(
                 op_call,
                 (
