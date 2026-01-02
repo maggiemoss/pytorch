@@ -2260,9 +2260,9 @@ class TrackedFake:
     Used by shape guard computation.
     """
 
-    fake: FakeTensor | SymInt | SymFloat
+    fake: Union[FakeTensor, SymInt]
     source: Source
-    symbolic_context: SymbolicContext | None
+    symbolic_context: Optional[SymbolicContext]
 
     def __hash__(self) -> int:
         return hash((self.fake, self.source.name))
@@ -5159,7 +5159,7 @@ class ShapeEnv:
 
             if duck:
                 # Make sure to reuse this symbol for subsequent duck shaping
-
+                # pyrefly: ignore [unsupported-operation]
                 self.val_to_var[val] = sympy_expr
 
             if isinstance(val, int):
@@ -5403,6 +5403,7 @@ class ShapeEnv:
             for i, (t, context) in enumerate(zip(placeholders, input_contexts)):
                 if isinstance(t, Tensorlike):
                     if context is None:
+                        # pyrefly: ignore [bad-argument-type]
                         input_contexts[i] = _create_no_constraints_context(t)
                 else:
                     assert isinstance(t, (SymInt, int, SymFloat, float))

@@ -221,7 +221,7 @@ class graph:
         # Lazy-init of default_capture_stream helps avoid circular-import errors.
         # Not thread safe, but graphs already have the general (explicitly documented)
         # restriction that only one capture may be underway at a time in the process.
-        if stream is None and self.__class__.default_capture_stream is None:
+        if self.__class__.default_capture_stream is None:
             self.__class__.default_capture_stream = torch.cuda.Stream()
 
         self.pool: tuple[()] | tuple[_POOL_HANDLE] = () if pool is None else (pool,)
@@ -548,7 +548,9 @@ def make_graphed_callables(
                 # Input args that didn't require grad expect a None gradient.
                 assert isinstance(static_grad_inputs, tuple)
                 return tuple(
-                    b.detach() if b is not None else b for b in static_grad_inputs
+                    # pyrefly: ignore [bad-argument-type]
+                    b.detach() if b is not None else b
+                    for b in static_grad_inputs
                 )
 
         def functionalized(*user_args: object) -> object:

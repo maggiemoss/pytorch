@@ -1632,7 +1632,7 @@ class CppVecOverrides(CppOverrides):
         return code
 
     @staticmethod
-    def to_dtype(x, dtype, src_dtype=None, use_compute_types=True):
+    def to_dtype(x, dtype, src_dtype=None, use_compute_dtypes=True):
         assert dtype in [
             torch.bool,
             torch.float64,
@@ -2041,6 +2041,7 @@ class CppKernel(Kernel):
                 # mask's dtype should be bool
                 mask.dtype = torch.bool
 
+        # pyrefly: ignore [bad-assignment]
         self._load_mask = mask
         try:
             yield mask
@@ -5219,7 +5220,7 @@ class CppScheduling(BaseScheduling):
                             )
                             local_buffers.append(local_buffer_used)
                             local_to_global_buffers[local_buffer_used.name] = []  # type: ignore[index]
-
+                        # pyrefly: ignore [index-error]
                         local_to_global_buffers[local_buffer_used.name].append(
                             global_buffer,
                         )

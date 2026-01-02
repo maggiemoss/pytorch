@@ -29,7 +29,6 @@ if torch.backends.mps.is_available():
             "_unsafe_masked_index_put_accumulate",
             "abs",
             "add",
-            "addbmm",
             "alias_copy",
             "argwhere",
             "atleast_1d",
@@ -42,7 +41,6 @@ if torch.backends.mps.is_available():
             "asinh",
             "acos",
             "atan",
-            "baddbmm",
             "broadcast_tensors",
             "broadcast_to",
             "chalf",
@@ -425,6 +423,8 @@ if torch.backends.mps.is_available():
                 torch.uint8,
                 torch.int8,
             ],
+            "addbmm": [torch.int16, torch.int32, torch.int64, torch.uint8, torch.int8],
+            "baddbmm": [torch.int16, torch.int32, torch.int64, torch.uint8, torch.int8],
             "mat": [torch.int16, torch.int32, torch.int64, torch.uint8, torch.int8],
             # returned output on CPU is float64
             "bincount": [

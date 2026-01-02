@@ -433,41 +433,55 @@ def reset_peak_memory_stats(device: "Device" = None) -> None:
 
 
 def host_memory_stats() -> dict[str, Any]:
-    r"""Return a dictionary of pinned (host) allocator statistics.
+    r"""Return a dictionary of CUDA memory allocator statistics for a given device.
 
-    Core statistics (host pinned allocator):
+     The return value of this function is a dictionary of statistics, each of
+     which is a non-negative integer.
 
-    - ``"allocations.{current,peak,allocated,freed}"``:
-      pinned blocks owned by the allocator (active + cached). Grows when a new
-      block is created via CUDA and shrinks when cached blocks are returned.
-    - ``"allocated_bytes.{current,peak,allocated,freed}"``:
-      bytes of pinned blocks owned by the allocator (active + cached), using
-      the rounded block size requested from CUDA.
-    - ``"active_requests.{current,peak,allocated,freed}"``:
-      blocks currently checked out to callers (increments on handout, decrements
-      when the block becomes reusable after stream deps finish).
-    - ``"active_bytes.{current,peak,allocated,freed}"``:
-      bytes corresponding to active blocks.
+     Core statistics:
 
-    Metric type:
+     - ``"allocated.{current,peak,allocated,freed}"``:
+       number of allocation requests received by the memory allocator.
+     - ``"allocated_bytes.{current,peak,allocated,freed}"``:
+       amount of allocated memory.
+     - ``"segment.{current,peak,allocated,freed}"``:
+       number of reserved segments from ``cudaMalloc()``.
+     - ``"reserved_bytes.{current,peak,allocated,freed}"``:
+       amount of reserved memory.
 
-    - ``current``: current value.
-    - ``peak``: maximum value.
-    - ``allocated``: historical total increase.
-    - ``freed``: historical total decrease.
+     For these core statistics, values are broken down as follows.
 
-    Event/timing counters:
+     Metric type:
 
-    - ``"num_host_alloc"`` / ``"num_host_free"``: blocks created to grow the
-      pool / cached blocks returned to CUDA (matches allocations allocated/freed).
-    - ``"host_alloc_time.{total,max,min,count,avg}"``: time in CUDA alloc calls
-      when growing the pool (microseconds).
-    - ``"host_free_time.{total,max,min,count,avg}"``: time in CUDA free calls
-      when cached blocks are returned (microseconds).
+     - ``current``: current value of this metric.
+     - ``peak``: maximum value of this metric.
+     - ``allocated``: historical total increase in this metric.
+     - ``freed``: historical total decrease in this metric.
 
-    Block sizes are rounded up to the next power of two before calling CUDA, so
-    byte stats reflect the rounded size. Peak values are aggregated per bucket
-    and are a best-effort approximation of the true peak.
+     In addition to the core statistics, we also provide some simple event
+     counters:
+
+     - ``"num_host_alloc"``: number of CUDA allocation calls. This includes both
+       cudaHostAlloc and cudaHostRegister.
+     - ``"num_host_free"``: number of CUDA free calls. This includes both cudaHostFree
+       and cudaHostUnregister.
+
+     Finally, we also provide some simple timing counters:
+
+     - ``"host_alloc_time.{total,max,min,count,avg}"``:
+       timing of allocation requests going through CUDA calls.
+     - ``"host_free_time.{total,max,min,count,avg}"``:
+       timing of free requests going through CUDA calls.
+
+    For these timing statistics, values are broken down as follows.
+
+     Metric type:
+
+     - ``total``: total time spent.
+     - ``max``: maximum value per call.
+     - ``min``: minimum value per call.
+     - ``count``: number of times it was called.
+     - ``avg``: average time per call.
     """
     result = []
 
@@ -1275,7 +1289,7 @@ def _set_memory_metadata(metadata: str):
         metadata (str): Custom metadata string to attach to allocations.
                        Pass an empty string to clear the metadata.
     """
-
+    # pyrefly: ignore [missing-attribute]
     torch._C._cuda_setMemoryMetadata(metadata)
 
 
@@ -1286,7 +1300,7 @@ def _get_memory_metadata() -> str:
     Returns:
         str: The current metadata string, or empty string if no metadata is set.
     """
-
+    # pyrefly: ignore [missing-attribute]
     return torch._C._cuda_getMemoryMetadata()
 
 
@@ -1309,6 +1323,7 @@ def _save_memory_usage(filename="output.svg", snapshot=None):
     category=FutureWarning,
 )
 def _set_allocator_settings(env: str):
+    # pyrefly: ignore [missing-attribute]
     return torch._C._accelerator_setAllocatorSettings(env)
 
 

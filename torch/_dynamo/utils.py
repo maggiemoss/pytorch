@@ -169,7 +169,9 @@ counters: collections.defaultdict[str, Counter[str]] = collections.defaultdict(
     collections.Counter
 )
 optimus_scuba_log: dict[str, Any] = {}
-troubleshooting_url = "https://docs.pytorch.org/docs/main/user_guide/torch_compiler/compile/programming_model.recompilation.html"
+troubleshooting_url = (
+    "https://pytorch.org/docs/main/compile/programming_model.recompilation.html"
+)
 nnmodule_doc_url = "https://pytorch.org/docs/main/torch.compiler_nn_module.html"
 nnmodule_doc_url_msg = f"See {nnmodule_doc_url} for more information and limitations."
 log = logging.getLogger(__name__)
@@ -349,23 +351,16 @@ def print_time_report() -> None:
 #        with dynamo_timed("metric", dynamo_compile_column_us="metric_us")
 #            ...
 #
-_metrics_context_tls = threading.local()
+_METRICS_CONTEXT: MetricsContext
+_RUNTIME_METRICS_CONTEXT: RuntimeMetricsContext
 
 
 def get_metrics_context() -> MetricsContext:
-    if not hasattr(_metrics_context_tls, "metrics_context"):
-        _metrics_context_tls.metrics_context = MetricsContext(
-            on_exit=record_compilation_metrics
-        )
-    return _metrics_context_tls.metrics_context
+    return _METRICS_CONTEXT
 
 
 def get_runtime_metrics_context() -> RuntimeMetricsContext:
-    if not hasattr(_metrics_context_tls, "runtime_metrics_context"):
-        _metrics_context_tls.runtime_metrics_context = RuntimeMetricsContext(
-            on_exit=record_compilation_metrics
-        )
-    return _metrics_context_tls.runtime_metrics_context
+    return _RUNTIME_METRICS_CONTEXT
 
 
 class CompileEventLogLevel(enum.Enum):
@@ -1773,6 +1768,11 @@ def record_compilation_metrics(
         log_compilation_event(compilation_metrics)
 
 
+# record_compilation_metrics is called by the singleton MetricsContext exit handler.
+_METRICS_CONTEXT = MetricsContext(on_exit=record_compilation_metrics)
+_RUNTIME_METRICS_CONTEXT = RuntimeMetricsContext(on_exit=record_compilation_metrics)
+
+
 def set_compilation_metrics_limit(new_size: int) -> None:
     global _compilation_metrics
     while len(_compilation_metrics) > new_size:
@@ -2303,19 +2303,16 @@ def skip_frame_if_in_functorch_mode(val: torch.Tensor) -> None:
     try:
         val.data_ptr()  # will throw for functorch tensors
     except RuntimeError as e:
-        from .exc import unimplemented
+        from .exc import format_skip_frame_message, SkipFrame
 
         # This will be GradTrackingTensor/BatchedTensor/etc
         functorch_subclass_name = re.sub(r"\(.*", "", repr(val))
-
-        unimplemented(
-            gb_type="skip frame due to being in functorh mode",
-            context="",
-            explanation=f"torch.compile cannot be run in context: {functorch_subclass_name}. Skipping frame.",
-            hints=[],
-            from_exc=e,
-            skip_frame=True,
-        )
+        raise SkipFrame(
+            format_skip_frame_message(
+                None,
+                f"torch.compile cannot be run in context: {functorch_subclass_name}",
+            )
+        ) from e
 
 
 @contextmanager

@@ -28,7 +28,7 @@ from torch._higher_order_ops.associative_scan import associative_scan_op
 from torch._higher_order_ops.triton_kernel_wrap import triton_kernel_wrapper_mutation
 from torch._library.fake_class_registry import FakeScriptObject
 from torch._library.utils import get_layout_constraint_tag
-from torch._prims_common import (
+from torch._prims_common import (  # pyrefly: ignore  # deprecated; pyrefly: ignore [deprecated]
     canonicalize_dim,
     canonicalize_dims,
     check,
@@ -162,6 +162,7 @@ def group_foreach_args(
                 break
         assert device is not None, "foreach op should have at least one tensor arg"
         if unpack_args:
+            # pyrefly: ignore [bad-unpacking]
             (args,) = args
         out[(device, use_foreach)].append((i, args))
     return out
@@ -278,7 +279,7 @@ def decode_dtype(dtype: Union[int, torch.dtype]) -> torch.dtype:
     if not isinstance(dtype, int):
         return dtype
     assert dtype in DTYPE_ID_LOOKUP, f"id {dtype} missing from DTYPE_ID_LOOKUP"
-
+    # pyrefly: ignore [bad-assignment]
     dtype = DTYPE_ID_LOOKUP[dtype]
     return dtype
 
@@ -552,10 +553,6 @@ def broadcast_symbolic_shapes(a, b):
     We give the shapes 0 and 1 concrete values, while all other shapes
     are symbolic sympy formulas.
     """
-    b = tuple(b)
-    if not a or a == b:
-        return b
-
     output = []
     for x, y in itertools.zip_longest(reversed(a), reversed(b), fillvalue=sympy.S.One):
         if V.graph.sizevars.is_size_one_or_false(y):
@@ -694,6 +691,7 @@ def make_pointwise(
         if not override_device:
             device = None
             for i in inputs:
+                # pyrefly: ignore [missing-attribute]
                 if is_gpu(i.get_device().type):
                     device = i.get_device()
                     break
@@ -1002,19 +1000,16 @@ def where(cond, a, b):
 
 @register_lowering(aten.broadcast_tensors, broadcast=False, type_promotion_kind=None)
 def broadcast_tensors(*inputs):
-    if len(inputs) == 1:
-        if isinstance(inputs[0], (list, tuple)):
-            return broadcast_tensors(*inputs[0])
-        return inputs
+    if len(inputs) == 1 and isinstance(inputs[0], (list, tuple)):
+        return broadcast_tensors(*inputs[0])
     target: list[sympy.Expr] = functools.reduce(
-        broadcast_symbolic_shapes, (x.get_size() for x in inputs), ()
+        broadcast_symbolic_shapes, [x.get_size() for x in inputs], []
     )
     outputs = []
     for x in inputs:
-        if (sizes := tuple(x.get_size())) == target:
-            pass
+        sizes = x.get_size()
 
-        elif len(sizes) != len(target) or any(
+        if len(sizes) != len(target) or any(
             V.graph.sizevars.is_size_one_or_false(a)
             != V.graph.sizevars.is_size_one_or_false(b)
             for a, b in zip(sizes, target)
@@ -3138,8 +3133,10 @@ def copy(self, src, non_blocking=False):
         src = tensor(src, dtype=self.get_dtype(), device=self.get_device())
     x = src
     if self.get_device() != src.get_device():
+        # pyrefly: ignore [bad-argument-type]
         x = to_device(x, self.get_device())
     if self.get_dtype() != src.get_dtype():
+        # pyrefly: ignore [bad-argument-type]
         x = to_dtype(x, self.get_dtype())
 
     if self.get_size() != src.get_size():
@@ -3207,7 +3204,7 @@ def iota(
 
 @register_lowering(aten.select_scatter, type_promotion_kind=None)
 def select_scatter(x, src, dim: int, index: int):
-    src = to_dtype(src, x.get_dtype())
+    assert x.get_dtype() == src.get_dtype()
     x_loader = x.make_loader()
     dim = _validate_dim(x, dim, 0)
     if V.graph.sizevars.guard_or_false(sympy.Lt(index, 0)):
@@ -3926,24 +3923,7 @@ def index_put_as_masked_fill(self, indices, value, accumulate):
 
 
 def index_put_fallback(self, indices, values, accumulate):
-    from .utils import _fx_node_is_input_dependent_cudagraph_unsafe
-
     op_overload = getattr(aten.index_put_, V.graph.current_node.target._overloadname)  # type: ignore[union-attr]
-
-    # Check if any index is a boolean tensor - if so, mark as cudagraph-unsafe
-    # because boolean indices trigger .nonzero() during CUDA graph capture
-    # When graph_partition is enabled, skip - partitioning handles this
-    fx_node = V.graph.current_node
-    if (
-        not config.graph_partition
-        and fx_node is not None
-        and _fx_node_is_input_dependent_cudagraph_unsafe(fx_node)
-    ):
-        msg = "index_put_ fallback with boolean indexing is not compatible with CUDA graphs"
-        if stack_trace := fx_node.meta.get("stack_trace", None):
-            msg = f"{msg} Found from : \n {stack_trace}"
-        V.graph.disable_cudagraphs_reason = msg
-
     ir.IndexPutFallback(op_overload, self, indices, values, accumulate)
     return self
 
@@ -6440,7 +6420,7 @@ def pow(a, b):
     if isinstance(a, Number):
         if a == 1:
             return full_like(b, 1)
-
+        # pyrefly: ignore [missing-attribute]
         if a == 2 and is_float_dtype(b.get_dtype()):
             return exp2(b)
 
@@ -7306,8 +7286,6 @@ def triton_kernel_wrap_(
 def cond(
     pred, true_fn, false_fn, operands
 ) -> list[Union[ir.TensorBox, ir.ShapeAsConstantBuffer]]:
-    # TODO: when graph_partition is enabled, skip - partitioning handles control flow
-    # we run into memory cleanup issue
     if any(isinstance(x, IRNode) and is_triton(x) for x in [pred, *operands]):
         msg = "control flow operator: torch.cond."
         if stack_trace := V.graph.current_node.meta.get("stack_trace", None):
@@ -7320,9 +7298,7 @@ def cond(
 
 @register_lowering(torch.ops.higher_order.while_loop, type_promotion_kind=None)
 def while_loop(cond_fn, body_fn, carried_inputs, additional_inputs, stack_output=False):
-    # TODO: when graph_partition is enabled, skip - partitioning handles control flow
-    # we run into memory cleanup issue
-    if not config.graph_partition and any(
+    if any(
         isinstance(x, IRNode) and is_triton(x)
         for x in carried_inputs + additional_inputs
     ):
@@ -7567,34 +7543,15 @@ def with_effects(token, op, *args, **kwargs):
                 op_name = new_op.get_name()  # pyrefly: ignore[missing-attribute]
                 V.graph.additional_star_deps[op_name].add(prev_effect_buffer.get_name())
         # Update the effectful ops chain to point to the latest operation
-        V.graph.effectful_ops[effect_type] = (
+        V.graph.effectful_ops[effect_type] = (  # pyrefly: ignore[missing-attribute]
             new_op  # pyrefly: ignore[unsupported-operation]
         )
 
     try:
-
-        def convert_ir_to_value(a):
-            if isinstance(a, ir.TorchBindObject):
-                return a.get_value()
-            elif isinstance(a, TensorBox):
-                # TensorBox wraps StorageBox, which wraps the actual buffer
-                # We need to get the example tensor from the inner buffer
-                try:
-                    storage = a.data
-                    if hasattr(storage, "data") and hasattr(
-                        storage.data, "get_example"
-                    ):
-                        return storage.data.get_example()
-                except (AttributeError, NotImplementedError):
-                    pass
-                # Fall back to returning the TensorBox itself if get_example fails
-                return a
-            return a
-
-        schema_args, schema_kwargs = pytree.tree_map(
-            convert_ir_to_value, (args, kwargs)
+        args, kwargs = pytree.tree_map_only(
+            ir.TorchBindObject, lambda a: a.get_value(), (args, kwargs)
         )
-        schema = _get_schema(op, schema_args, schema_kwargs)
+        schema = _get_schema(op, args, kwargs)
     except RuntimeError as e:
         error_msg = str(e)
         log.warning(

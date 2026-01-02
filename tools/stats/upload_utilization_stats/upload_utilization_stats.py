@@ -67,7 +67,7 @@ class SegmentGenerator:
             unique_cmds_df[cmd_col_name].str.startswith("python")
         ][cmd_col_name].tolist()
 
-        # find segments by screening continuous time series data
+        # find segments by screening continuoues time series data
         segments: list[OssCiSegmentV1] = []
         for value in cmd_list:
             subset = df[df[cmd_col_name] == value].copy()

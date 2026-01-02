@@ -1,18 +1,16 @@
 import logging
 import threading
-from collections.abc import Sequence
+from collections.abc import Callable, Sequence
 from typing import Any, cast
 
 import torch
 import torch.distributed._functional_collectives as funcol
 import torch.distributed.tensor._api as dtensor
-from torch._logging import LazyString
 from torch._prims_common import ShapeType
 from torch.distributed._local_tensor import maybe_run_for_local_tensor
 from torch.distributed.device_mesh import DeviceMesh
 from torch.distributed.tensor._collective_utils import redistribute_cost
 from torch.distributed.tensor._dtensor_spec import DTensorSpec
-from torch.distributed.tensor._op_schema import OpSchema
 from torch.distributed.tensor.placement_types import (
     _StridedShard,
     Partial,
@@ -23,10 +21,6 @@ from torch.distributed.tensor.placement_types import (
 
 
 logger = logging.getLogger(__name__)
-
-
-def _format_implicit_redistribution_msg(schema: OpSchema) -> str:
-    return f"Implicit redistribution occurred for {schema} while ExplicitRedistributionContext was active"
 
 
 class ExplicitRedistributionContext:
@@ -46,7 +40,7 @@ class ExplicitRedistributionContext:
     communication.
 
     mode (str) Determines what happens when ExplicitRedistributionContext triggers:
-    "raise": raises an exception, "warn" issues a warning
+    "raise": raises an exceptoin, "warn" issues a warning
     """
 
     _local = threading.local()
@@ -60,11 +54,9 @@ class ExplicitRedistributionContext:
 
     @classmethod
     def observe_redistribution(
-        cls,
-        src_spec: DTensorSpec,
-        dst_spec: DTensorSpec,
-        redistribution_msg: LazyString,
+        cls, src_spec: DTensorSpec, dst_spec: DTensorSpec, message_fn: Callable[[], str]
     ):
+        assert callable(message_fn)
         if instance := getattr(cls._local, "_active", None):
             allowed = True
             if instance._enable:
@@ -74,9 +66,11 @@ class ExplicitRedistributionContext:
                     allowed = redistribute_cost(src_spec, dst_spec) <= 0
             if not allowed:
                 if instance._raise_on_redistribution:
-                    raise RuntimeError(redistribution_msg)
+                    raise RuntimeError(message_fn())
                 else:
-                    logger.warning(redistribution_msg)
+                    # TODO: this is still suboptimal when redistribution is on
+                    # but warnings are being suppressed
+                    logger.warning(message_fn())
 
     def __enter__(self):
         self._prev = getattr(ExplicitRedistributionContext._local, "_active", None)

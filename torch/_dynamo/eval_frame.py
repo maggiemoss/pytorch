@@ -98,7 +98,6 @@ from .code_context import code_context
 from .exc import (
     CondOpArgsMismatchError,
     ShortenTraceback,
-    UncapturedHigherOrderOpError,
     Unsupported,
     UserError,
     UserErrorType,
@@ -973,7 +972,7 @@ class _TorchDynamoContext:
 
                 try:
                     return fn(*args, **kwargs)
-                except (Unsupported, UncapturedHigherOrderOpError) as e:
+                except Unsupported as e:
                     if config.verbose:
                         raise
                     # strip internal tracebacks from causes
@@ -981,7 +980,7 @@ class _TorchDynamoContext:
                     while cur_exn.__cause__ is not None:
                         cur_exn.__cause__.with_traceback(None)
                         cur_exn = cur_exn.__cause__
-
+                    # pyrefly: ignore [invalid-inheritance]
                     raise e.with_traceback(None) from e.__cause__  # User compiler error
                 except ShortenTraceback as e:
                     # Failures in the backend likely don't have useful
@@ -1189,21 +1188,14 @@ class DisableContext(_TorchDynamoContext):
             try:
                 _maybe_set_eval_frame(_callback_from_stance(self.callback))
                 try:
-                    fn_name = getattr(fn, "__name__", type(fn).__name__)
-                    # Skip annotation for __torch_dispatch__ to avoid polluting
-                    # node metadata during export. The disable on __torch_dispatch__
-                    # is an internal implementation detail, not user-facing.
-                    # TODO: Ideally we shouldn't need this check because nested
-                    # annotate() calls shouldn't override existing keys.
-                    if (
-                        torch.compiler.is_exporting()
-                        and fn_name != "__torch_dispatch__"
-                    ):
+                    if torch.compiler.is_exporting():
                         with fx_traceback.annotate(
                             {
                                 "_torchdynamo_disable": True,
                                 "_torchdynamo_disable_recursive": True,
-                                "_torchdynamo_disable_method": fn_name,
+                                "_torchdynamo_disable_method": getattr(
+                                    fn, "__name__", type(fn).__name__
+                                ),
                             }
                         ):
                             return fn(*args, **kwargs)

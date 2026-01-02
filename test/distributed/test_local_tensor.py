@@ -193,7 +193,8 @@ class TestLocalTensorWorld2(LocalTensorTestBase):
 
     def test_empty_local_tensors(self):
         """Test behavior with empty local tensors dict."""
-        with self.assertRaises(ValueError):
+        # TODO: raise a better error here
+        with self.assertRaises(StopIteration):  # next() on empty iterator
             LocalTensor({})
 
     def test_collectives_within_local_tensor_mode(self):
