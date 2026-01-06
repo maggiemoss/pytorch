@@ -111,7 +111,6 @@ from torch.export.pt2_archive._package_weights import TensorProperties, Weights
 from torch.export.pt2_archive.constants import CUSTOM_OBJ_FILENAME_PREFIX
 from torch.fx.experimental.symbolic_shapes import has_hint, hint_int, ShapeEnv
 from torch.utils._ordered_set import OrderedSet
-
 from .output_code import CompiledFxGraph
 from .remote_cache import create_cache
 from .runtime import autotune_cache
@@ -2430,15 +2429,18 @@ end
                                 compile_multiarch_bundle_from_llvm_ir,
                             )
 
+                            # pyrefly: ignore [unbound-name]
                             if not os.path.exists(asm_file):
                                 raise RuntimeError(
                                     f"Multi-arch ROCm compilation requires LLVM IR file, "
+                                    # pyrefly: ignore [unbound-name]
                                     f"but {asm_file} not found. "
                                     f"Ensure asm_type='ll' is captured in triton_heuristics.py"
                                 )
 
                             # Compile for multiple archs and bundle them
                             success = compile_multiarch_bundle_from_llvm_ir(
+                                # pyrefly: ignore [unbound-name]
                                 llvm_ir_path=asm_file,
                                 output_bundle_path=cubin_file,
                                 target_archs=None,
@@ -2553,10 +2555,10 @@ end
                         # Don't use resource.getpagesize() on Windows, as it is a Unix specific package
                         # as seen in https://docs.python.org/2/library/resource.html
                         if _IS_WINDOWS:
-                            from ctypes import (  # type: ignore[attr-defined]
+                            from ctypes import (
                                 byref,
                                 Structure,
-                                windll,
+                                windll,  # pyrefly: ignore [missing-module-attribute]
                             )
                             from ctypes.wintypes import DWORD, LPVOID, WORD
 
