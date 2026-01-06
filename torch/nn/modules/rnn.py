@@ -12,7 +12,6 @@ from torch import _VF, Tensor
 from torch.nn import init
 from torch.nn.parameter import Parameter
 from torch.nn.utils.rnn import PackedSequence
-
 from .module import Module
 
 
@@ -660,8 +659,7 @@ class RNN(RNNBase):
         self,
         input: Tensor,
         hx: Tensor | None = None,
-    # pyrefly: ignore [bad-return]
-    ) -> tuple[Tensor, Tensor]:
+    ) -> tuple[Tensor, Tensor]:  # pyrefly: ignore [bad-return]
         pass
 
     @overload
@@ -670,8 +668,7 @@ class RNN(RNNBase):
         self,
         input: PackedSequence,
         hx: Tensor | None = None,
-    # pyrefly: ignore [bad-return]
-    ) -> tuple[PackedSequence, Tensor]:
+    ) -> tuple[PackedSequence, Tensor]:  # pyrefly: ignore [bad-return]
         pass
 
     def forward(self, input, hx=None):  # noqa: F811
@@ -1068,8 +1065,7 @@ class LSTM(RNNBase):
         self,
         input: Tensor,
         hx: tuple[Tensor, Tensor] | None = None,
-    # pyrefly: ignore [bad-return]
-    ) -> tuple[Tensor, tuple[Tensor, Tensor]]:  # noqa: F811
+    ) -> tuple[Tensor, tuple[Tensor, Tensor]]:  # noqa: F811  # pyrefly: ignore [bad-return]
         pass
 
     # Same as above, see torch/nn/modules/module.py::_forward_unimplemented
@@ -1079,8 +1075,7 @@ class LSTM(RNNBase):
         self,
         input: PackedSequence,
         hx: tuple[Tensor, Tensor] | None = None,
-    # pyrefly: ignore [bad-return]
-    ) -> tuple[PackedSequence, tuple[Tensor, Tensor]]:  # noqa: F811
+    ) -> tuple[PackedSequence, tuple[Tensor, Tensor]]:  # noqa: F811  # pyrefly: ignore [bad-return]
         pass
 
     def forward(self, input, hx=None):  # noqa: F811
@@ -1370,8 +1365,7 @@ class GRU(RNNBase):
         self,
         input: Tensor,
         hx: Tensor | None = None,
-    # pyrefly: ignore [bad-return]
-    ) -> tuple[Tensor, Tensor]:  # noqa: F811
+    ) -> tuple[Tensor, Tensor]:  # noqa: F811 # pyrefly: ignore [bad-return]
         pass
 
     @overload
@@ -1380,8 +1374,7 @@ class GRU(RNNBase):
         self,
         input: PackedSequence,
         hx: Tensor | None = None,
-    # pyrefly: ignore [bad-return]
-    ) -> tuple[PackedSequence, Tensor]:  # noqa: F811
+    ) -> tuple[PackedSequence, Tensor]:  # noqa: F811 # pyrefly: ignore [bad-return]
         pass
 
     def forward(self, input, hx=None):  # noqa: F811
