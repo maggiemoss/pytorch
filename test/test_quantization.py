@@ -20,12 +20,15 @@ from quantization.core.test_quantized_op import TestDynamicQuantizedOps  # noqa:
 from quantization.core.test_quantized_op import TestComparatorOps  # noqa: F401
 from quantization.core.test_quantized_op import TestPadding  # noqa: F401
 from quantization.core.test_quantized_op import TestQuantizedEmbeddingOps  # noqa: F401
+
 # 2. Quantized Functional/Workflow Ops
 from quantization.core.test_quantized_functional import TestQuantizedFunctionalOps  # noqa: F401
 from quantization.core.test_workflow_ops import TestFakeQuantizeOps  # noqa: F401
 from quantization.core.test_workflow_ops import TestFusedObsFakeQuant  # noqa: F401
+
 # 3. Quantized Tensor
 from quantization.core.test_quantized_tensor import TestQuantizedTensor  # noqa: F401
+
 # 4. Modules
 from quantization.core.test_workflow_module import TestFakeQuantize  # noqa: F401
 from quantization.core.test_workflow_module import TestObserver  # noqa: F401
@@ -46,15 +49,20 @@ from quantization.core.test_utils import TestUtils  # noqa: F401
 from quantization.eager.test_quantize_eager_ptq import TestQuantizeEagerPTQStatic  # noqa: F401
 from quantization.eager.test_quantize_eager_ptq import TestQuantizeEagerPTQDynamic  # noqa: F401
 from quantization.eager.test_quantize_eager_ptq import TestQuantizeEagerOps  # noqa: F401
+
 # 2. Eager mode quantization aware training
 from quantization.eager.test_quantize_eager_qat import TestQuantizeEagerQAT  # noqa: F401
 from quantization.eager.test_quantize_eager_qat import TestQuantizeEagerQATNumerics  # noqa: F401
+
 # 3. Eager mode fusion passes
 from quantization.eager.test_fuse_eager import TestFuseEager  # noqa: F401
+
 # 4. Testing model numerics between quantized and FP32 models
 from quantization.eager.test_model_numerics import TestModelNumericsEager  # noqa: F401
+
 # 5. Tooling: numeric_suite
 from quantization.eager.test_numeric_suite_eager import TestNumericSuiteEager  # noqa: F401
+
 # 6. Equalization and Bias Correction
 from quantization.eager.test_equalize_eager import TestEqualizeEager  # noqa: F401
 from quantization.eager.test_bias_correction_eager import TestBiasCorrectionEager  # noqa: F401
@@ -86,8 +94,10 @@ except ImportError as e:
 # Test the model report module
 try:
     from quantization.fx.test_model_report_fx import TestFxModelReportDetector  # noqa: F401
-    from quantization.fx.test_model_report_fx import TestFxModelReportObserver      # noqa: F401
-    from quantization.fx.test_model_report_fx import TestFxModelReportDetectDynamicStatic  # noqa: F401
+    from quantization.fx.test_model_report_fx import TestFxModelReportObserver  # noqa: F401
+    from quantization.fx.test_model_report_fx import (
+        TestFxModelReportDetectDynamicStatic,
+    )  # noqa: F401
     from quantization.fx.test_model_report_fx import TestFxModelReportClass  # noqa: F401
     from quantization.fx.test_model_report_fx import TestFxDetectInputWeightEqualization  # noqa: F401
     from quantization.fx.test_model_report_fx import TestFxDetectOutliers  # noqa: F401
@@ -113,6 +123,7 @@ from quantization.jit.test_quantize_jit import TestQuantizeJitPasses  # noqa: F4
 from quantization.jit.test_quantize_jit import TestQuantizeJitOps  # noqa: F401
 from quantization.jit.test_quantize_jit import TestQuantizeDynamicJitPasses  # noqa: F401
 from quantization.jit.test_quantize_jit import TestQuantizeDynamicJitOps  # noqa: F401
+
 # Quantization specific fusion passes
 from quantization.jit.test_fusion_passes import TestFusionPasses  # noqa: F401
 from quantization.jit.test_deprecated_jit_quant import TestDeprecatedJitQuantized  # noqa: F401
@@ -121,8 +132,11 @@ from quantization.jit.test_deprecated_jit_quant import TestDeprecatedJitQuantize
 from quantization.ao_migration.test_quantization import TestAOMigrationQuantization  # noqa: F401
 from quantization.ao_migration.test_ao_migration import TestAOMigrationNNQuantized  # noqa: F401
 from quantization.ao_migration.test_ao_migration import TestAOMigrationNNIntrinsic  # noqa: F401
+
 try:
-    from quantization.ao_migration.test_quantization_fx import TestAOMigrationQuantizationFx  # noqa: F401
+    from quantization.ao_migration.test_quantization_fx import (
+        TestAOMigrationQuantizationFx,
+    )  # noqa: F401
 except ImportError as e:
     log.warning(e)  # noqa:G200
 
@@ -148,5 +162,5 @@ try:
 except ImportError as e:
     log.warning(e)  # noqa:G200
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     run_tests()

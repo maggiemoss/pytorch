@@ -1,5 +1,6 @@
 # mypy: allow-untyped-defs
 """Display class to aggregate and print the results of many measurements."""
+
 import collections
 import enum
 import itertools as it
@@ -39,27 +40,32 @@ class _Column:
         self._time_scale = time_scale
         self._time_unit = time_unit
         self._trim_significant_figures = trim_significant_figures
-        self._highlight_warnings = (
-            highlight_warnings
-            and any(r.has_warnings for r in self._flat_results if r)
+        self._highlight_warnings = highlight_warnings and any(
+            r.has_warnings for r in self._flat_results if r
         )
         leading_digits = [
             int(_tensor(r.median / self._time_scale).log10().ceil()) if r else None
             for r in self._flat_results
         ]
         unit_digits = max(d for d in leading_digits if d is not None)
-        decimal_digits = min(
-            max(m.significant_figures - digits, 0)
-            for digits, m in zip(leading_digits, self._flat_results, strict=True)
-            if (m is not None) and (digits is not None)
-        ) if self._trim_significant_figures else 1
+        decimal_digits = (
+            min(
+                max(m.significant_figures - digits, 0)
+                for digits, m in zip(leading_digits, self._flat_results, strict=True)
+                if (m is not None) and (digits is not None)
+            )
+            if self._trim_significant_figures
+            else 1
+        )
         length = unit_digits + decimal_digits + (1 if decimal_digits else 0)
         self._template = f"{{:>{length}.{decimal_digits}f}}{{:>{7 if self._highlight_warnings else 0}}}"
 
     def get_results_for(self, group):
         return self._grouped_results[group]
 
-    def num_to_str(self, value: float | None, estimated_sigfigs: int, spread: float | None):
+    def num_to_str(
+        self, value: float | None, estimated_sigfigs: int, spread: float | None
+    ):
         if value is None:
             return " " * len(self.num_to_str(1, estimated_sigfigs, None))
 
@@ -68,7 +74,10 @@ class _Column:
 
         return self._template.format(
             value,
-            f" (! {spread * 100:.0f}%)" if self._highlight_warnings and spread is not None else "")
+            f" (! {spread * 100:.0f}%)"
+            if self._highlight_warnings and spread is not None
+            else "",
+        )
 
 
 def optional_min(seq):
@@ -77,8 +86,17 @@ def optional_min(seq):
 
 
 class _Row:
-    def __init__(self, results, row_group, render_env, env_str_len,
-                 row_name_str_len, time_scale, colorize, num_threads=None) -> None:
+    def __init__(
+        self,
+        results,
+        row_group,
+        render_env,
+        env_str_len,
+        row_name_str_len,
+        time_scale,
+        colorize,
+        num_threads=None,
+    ) -> None:
         super().__init__()
         self._results = results
         self._row_group = row_group
@@ -102,11 +120,13 @@ class _Row:
             if m is None:
                 output.append(col.num_to_str(None, 1, None))
             else:
-                output.append(col.num_to_str(
-                    m.median / self._time_scale,
-                    m.significant_figures,
-                    m.iqr / m.median if m.has_warnings else None
-                ))
+                output.append(
+                    col.num_to_str(
+                        m.median / self._time_scale,
+                        m.significant_figures,
+                        m.iqr / m.median if m.has_warnings else None,
+                    )
+                )
         return output
 
     @staticmethod
@@ -125,7 +145,8 @@ class _Row:
     def row_separator(self, overall_width):
         return (
             [f"{self._num_threads} threads: ".ljust(overall_width, "-")]
-            if self._num_threads is not None else []
+            if self._num_threads is not None
+            else []
         )
 
     def finalize_column_strings(self, column_strings, col_widths):
@@ -135,14 +156,24 @@ class _Row:
             best_values = [row_min for _ in column_strings]
         elif self._colorize == Colorize.COLUMNWISE:
             best_values = [
-                optional_min(r.median for r in column.get_results_for(self._row_group) if r is not None)
+                optional_min(
+                    r.median
+                    for r in column.get_results_for(self._row_group)
+                    if r is not None
+                )
                 for column in (self._columns or ())
             ]
 
         row_contents = [column_strings[0].ljust(col_widths[0])]
-        for col_str, width, result, best_value in zip(column_strings[1:], col_widths[1:], self._results, best_values, strict=False):
+        for col_str, width, result, best_value in zip(
+            column_strings[1:], col_widths[1:], self._results, best_values, strict=False
+        ):
             col_str = col_str.center(width)
-            if self._colorize != Colorize.NONE and result is not None and best_value is not None:
+            if (
+                self._colorize != Colorize.NONE
+                and result is not None
+                and best_value is not None
+            ):
                 col_str = self.color_segment(col_str, result.median, best_value)
             row_contents.append(col_str)
         return row_contents
@@ -150,11 +181,11 @@ class _Row:
 
 class Table:
     def __init__(
-            self,
-            results: list[common.Measurement],
-            colorize: Colorize,
-            trim_significant_figures: bool,
-            highlight_warnings: bool
+        self,
+        results: list[common.Measurement],
+        colorize: Colorize,
+        trim_significant_figures: bool,
+        highlight_warnings: bool,
     ) -> None:
         if len({r.label for r in results}) != 1:
             raise AssertionError("All results must share the same label")
@@ -185,8 +216,7 @@ class Table:
         rows: list[_Row] = []
         columns: list[_Column] = []
         ordered_results: list[list[common.Measurement | None]] = [
-            [None for _ in self.column_keys]
-            for _ in self.row_keys
+            [None for _ in self.column_keys] for _ in self.row_keys
         ]
         row_position = {key: i for i, key in enumerate(self.row_keys)}
         col_position = {key: i for i, key in enumerate(self.column_keys)}
@@ -205,8 +235,10 @@ class Table:
         prior_env = ""
         row_group = -1
         rows_by_group: list[list[list[common.Measurement | None]]] = []
-        for (num_threads, env, _), row in zip(self.row_keys, ordered_results, strict=True):
-            thread_transition = (num_threads != prior_num_threads)
+        for (num_threads, env, _), row in zip(
+            self.row_keys, ordered_results, strict=True
+        ):
+            thread_transition = num_threads != prior_num_threads
             if thread_transition:
                 prior_num_threads = num_threads
                 prior_env = ""
@@ -234,7 +266,8 @@ class Table:
                 time_scale=self.time_scale,
                 time_unit=self.time_unit,
                 trim_significant_figures=self._trim_significant_figures,
-                highlight_warnings=self._highlight_warnings,)
+                highlight_warnings=self._highlight_warnings,
+            )
             columns.append(column)
 
         rows_tuple, columns_tuple = tuple(rows), tuple(columns)
@@ -250,20 +283,30 @@ class Table:
             sr.extend(["" for _ in range(num_cols - len(sr))])
 
         col_widths = [max(len(j) for j in i) for i in zip(*string_rows, strict=True)]
-        finalized_columns = ["  |  ".join(i.center(w) for i, w in zip(string_rows[0], col_widths, strict=True))]
+        finalized_columns = [
+            "  |  ".join(
+                i.center(w) for i, w in zip(string_rows[0], col_widths, strict=True)
+            )
+        ]
         overall_width = len(finalized_columns[0])
         for string_row, row in zip(string_rows[1:], self.rows, strict=True):
             finalized_columns.extend(row.row_separator(overall_width))
-            finalized_columns.append("  |  ".join(row.finalize_column_strings(string_row, col_widths)))
+            finalized_columns.append(
+                "  |  ".join(row.finalize_column_strings(string_row, col_widths))
+            )
 
         newline = "\n"
-        has_warnings = self._highlight_warnings and any(ri.has_warnings for ri in self.results)
+        has_warnings = self._highlight_warnings and any(
+            ri.has_warnings for ri in self.results
+        )
         return f"""
-[{(' ' + (self.label or '') + ' ').center(overall_width - 2, '-')}]
+[{(" " + (self.label or "") + " ").center(overall_width - 2, "-")}]
 {newline.join(finalized_columns)}
 
 Times are in {common.unit_to_english(self.time_unit)}s ({self.time_unit}).
-{'(! XX%) Measurement has high variance, where XX is the IQR / median * 100.' + newline if has_warnings else ""}"""[1:]
+{"(! XX%) Measurement has high variance, where XX is the IQR / median * 100." + newline if has_warnings else ""}"""[
+            1:
+        ]
 
 
 class Compare:
@@ -282,6 +325,7 @@ class Compare:
     Args:
         results: List of Measurement to display.
     """
+
     def __init__(self, results: list[common.Measurement]) -> None:
         self._results: list[common.Measurement] = []
         self.extend_results(results)
@@ -300,7 +344,7 @@ class Compare:
         for r in results:
             if not isinstance(r, common.Measurement):
                 raise ValueError(
-                    "Expected an instance of `Measurement`, " f"got {type(r)} instead."
+                    f"Expected an instance of `Measurement`, got {type(r)} instead."
                 )
         self._results.extend(results)
 
@@ -330,7 +374,9 @@ class Compare:
         return output
 
     def _group_by_label(self, results: list[common.Measurement]):
-        grouped_results: collections.defaultdict[str, list[common.Measurement]] = collections.defaultdict(list)
+        grouped_results: collections.defaultdict[str, list[common.Measurement]] = (
+            collections.defaultdict(list)
+        )
         for r in results:
             grouped_results[r.label].append(r)
         return grouped_results
@@ -340,6 +386,6 @@ class Compare:
             results,
             self._colorize,
             self._trim_significant_figures,
-            self._highlight_warnings
+            self._highlight_warnings,
         )
         return table.render()

@@ -32,6 +32,7 @@ redirect_imports = (
     "test.typinganndata.ann_module",
 )
 
+
 class RedirectImportFinder(importlib.abc.MetaPathFinder):
     def find_spec(self, fullname, path, target=None):
         # Check if the import is the problematic one
@@ -48,6 +49,7 @@ class RedirectImportFinder(importlib.abc.MetaPathFinder):
                 return None
         return None
 
+
 # Add the custom finder to sys.meta_path
 sys.meta_path.insert(0, RedirectImportFinder())
 
@@ -63,11 +65,12 @@ import unittest
 
 from collections import defaultdict
 
+
 def foobar():
     return list
 
-class TestDefaultDict(__TestCase):
 
+class TestDefaultDict(__TestCase):
     def test_basic(self):
         d1 = defaultdict()
         self.assertEqual(d1.default_factory, None)
@@ -121,7 +124,10 @@ class TestDefaultDict(__TestCase):
         self.assertEqual(d2.default_factory, int)
         d2[12] = 42
         self.assertEqual(repr(d2), "defaultdict(<class 'int'>, {12: 42})")
-        def foo(): return 43
+
+        def foo():
+            return 43
+
         d3 = defaultdict(foo)
         self.assertTrue(d3.default_factory is foo)
         d3[13]
@@ -148,9 +154,9 @@ class TestDefaultDict(__TestCase):
 
         # Issue 6637: Copy fails for empty default dict
         d = defaultdict()
-        d['a'] = 42
+        d["a"] = 42
         e = d.copy()
-        self.assertEqual(e['a'], 42)
+        self.assertEqual(e["a"], 42)
 
     def test_shallow_copy(self):
         d1 = defaultdict(foobar, {1: 1})
@@ -185,15 +191,20 @@ class TestDefaultDict(__TestCase):
     def test_recursive_repr(self):
         # Issue2045: stack overflow when default_factory is a bound method
         with torch._dynamo.error_on_graph_break(False):
+
             class sub(defaultdict):
                 def __init__(self):
                     self.default_factory = self._factory
+
                 def _factory(self):
                     return []
+
         d = sub()
-        self.assertRegex(repr(d),
+        self.assertRegex(
+            repr(d),
             r"sub\(<bound method .*sub\._factory "
-            r"of sub\(\.\.\., \{\}\)>, \{\}\)")
+            r"of sub\(\.\.\., \{\}\)>, \{\}\)",
+        )
 
     def test_callable_arg(self):
         self.assertRaises(TypeError, defaultdict, {})
@@ -243,6 +254,7 @@ class TestDefaultDict(__TestCase):
 
         with self.assertRaises(TypeError):
             i |= None
+
 
 if __name__ == "__main__":
     run_tests()

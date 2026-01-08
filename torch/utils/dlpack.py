@@ -11,26 +11,29 @@ __all__ = [
     "from_dlpack",
 ]
 
+
 class DLDeviceType(enum.IntEnum):
     # Enums as in DLPack specification (aten/src/ATen/dlpack.h)
-    kDLCPU = 1,
-    kDLCUDA = 2,
-    kDLCUDAHost = 3,
-    kDLOpenCL = 4,
-    kDLVulkan = 7,
-    kDLMetal = 8,
-    kDLVPI = 9,
-    kDLROCM = 10,
-    kDLROCMHost = 11,
-    kDLExtDev = 12,
-    kDLCUDAManaged = 13,
-    kDLOneAPI = 14,
-    kDLWebGPU = 15,
-    kDLHexagon = 16,
-    kDLMAIA = 17,
+    kDLCPU = (1,)
+    kDLCUDA = (2,)
+    kDLCUDAHost = (3,)
+    kDLOpenCL = (4,)
+    kDLVulkan = (7,)
+    kDLMetal = (8,)
+    kDLVPI = (9,)
+    kDLROCM = (10,)
+    kDLROCMHost = (11,)
+    kDLExtDev = (12,)
+    kDLCUDAManaged = (13,)
+    kDLOneAPI = (14,)
+    kDLWebGPU = (15,)
+    kDLHexagon = (16,)
+    kDLMAIA = (17,)
 
 
-torch._C._add_docstr(to_dlpack, r"""to_dlpack(tensor) -> PyCapsule
+torch._C._add_docstr(
+    to_dlpack,
+    r"""to_dlpack(tensor) -> PyCapsule
 
 Returns an opaque object (a "DLPack capsule") representing the tensor.
 
@@ -50,17 +53,15 @@ Args:
     tensor: a tensor to be exported
 
 The DLPack capsule shares the tensor's memory.
-""")
+""",
+)
 
 
 # TODO: add a typing.Protocol to be able to tell Mypy that only objects with
 # __dlpack__ and __dlpack_device__ methods are accepted.
 def from_dlpack(
-    ext_tensor: Any,
-    *,
-    device: _Device | None = None,
-    copy: bool | None = None
-) -> 'torch.Tensor':
+    ext_tensor: Any, *, device: _Device | None = None, copy: bool | None = None
+) -> "torch.Tensor":
     """from_dlpack(ext_tensor) -> Tensor
 
     Converts a tensor from an external library into a ``torch.Tensor``.
@@ -119,7 +120,7 @@ def from_dlpack(
 
     """
 
-    if hasattr(ext_tensor, '__dlpack__'):
+    if hasattr(ext_tensor, "__dlpack__"):
         # Only populate kwargs if any of the optional arguments are, in fact, not None. Otherwise,
         # leave them out, since we might end up falling back to no-extra-kwargs __dlpack__ call.
         kwargs: dict[str, Any] = {}
@@ -128,7 +129,9 @@ def from_dlpack(
         # Track copy request for potential manual handling
         requested_copy = copy
         producer_handled_copy = True
-        cross_device_transfer = False  # Will be set to True if device transfer is needed
+        cross_device_transfer = (
+            False  # Will be set to True if device transfer is needed
+        )
 
         if copy is not None:
             kwargs["copy"] = copy
@@ -143,14 +146,16 @@ def from_dlpack(
             if isinstance(device, str):
                 device = torch.device(device)
             if not isinstance(device, torch.device):
-                raise AssertionError(f"from_dlpack: unsupported device type: {type(device)}")
+                raise AssertionError(
+                    f"from_dlpack: unsupported device type: {type(device)}"
+                )
 
             # Convert target device to DLPack format
             target_dl_device = torch._C._torchDeviceToDLDevice(device)
 
             # Detect cross-device transfer by comparing source and target devices
             # E.g. CPU->CUDA, cuda:0->cuda:1, etc.
-            cross_device_transfer = (ext_device != target_dl_device)
+            cross_device_transfer = ext_device != target_dl_device
 
             # Only pass dl_device to producer if NOT cross-device transfer
             if not cross_device_transfer:
@@ -166,7 +171,7 @@ def from_dlpack(
         # ext_device is either CUDA or ROCm, we need to pass the current
         # stream
         if ext_device[0] in (DLDeviceType.kDLCUDA, DLDeviceType.kDLROCM):
-            stream = torch.cuda.current_stream(f'cuda:{ext_device[1]}')
+            stream = torch.cuda.current_stream(f"cuda:{ext_device[1]}")
             # cuda_stream is the pointer to the stream and it is a public
             # attribute, but it is not documented
             # The array API specify that the default legacy stream must be passed
@@ -175,7 +180,9 @@ def from_dlpack(
             is_cuda = ext_device[0] == DLDeviceType.kDLCUDA
             # Since pytorch is not using PTDS by default, lets directly pass
             # the legacy stream
-            stream_ptr = 1 if is_cuda and stream.cuda_stream == 0 else stream.cuda_stream
+            stream_ptr = (
+                1 if is_cuda and stream.cuda_stream == 0 else stream.cuda_stream
+            )
             kwargs["stream"] = stream_ptr
 
         # Try different parameter combinations until one works
@@ -212,7 +219,11 @@ def from_dlpack(
         tensor = torch._C._from_dlpack(dlpack)
 
         # Manual copy if producer didn't handle it (cross-device already copies via .to())
-        if requested_copy is True and not producer_handled_copy and not cross_device_transfer:
+        if (
+            requested_copy is True
+            and not producer_handled_copy
+            and not cross_device_transfer
+        ):
             tensor = tensor.clone()
 
         # Handle cross-device transfer by moving tensor to target device

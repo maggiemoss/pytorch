@@ -45,7 +45,7 @@ class _Version(NamedTuple):
 def parse(version: str) -> "Version":
     """Parse the given version string.
 
-    >>> parse('1.0.dev1')
+    >>> parse("1.0.dev1")
     <Version('1.0.dev1')>
 
     :param version: The version string to parse.
@@ -224,7 +224,7 @@ class Version(_BaseVersion):
     def __repr__(self) -> str:
         """A representation of the Version that shows all internal state.
 
-        >>> Version('1.0.0')
+        >>> Version("1.0.0")
         <Version('1.0.0')>
         """
         return f"<Version('{self}')>"
@@ -452,7 +452,6 @@ class Version(_BaseVersion):
 def _parse_letter_version(
     letter: Optional[str], number: Union[str, bytes, SupportsInt, None]
 ) -> Optional[Tuple[str, int]]:
-
     if letter:
         # We consider there to be an implicit 0 in a pre-release if there is
         # not a numeral associated with it.
@@ -508,7 +507,6 @@ def _cmpkey(
     dev: Optional[Tuple[str, int]],
     local: Optional[LocalType],
 ) -> CmpKey:
-
     # When we compare a release version, we want to compare it with all of the
     # trailing zeros removed. So we'll use a reverse the list, drop all the now
     # leading zeros until we come to something non zero, then take the rest

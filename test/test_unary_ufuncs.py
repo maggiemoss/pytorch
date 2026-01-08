@@ -1894,8 +1894,7 @@ class TestUnaryUfuncs(TestCase):
         tensor = torch.randint(low=1, high=10, size=(5,), device=device, dtype=dtype)
 
         with self.assertRaisesRegex(
-            RuntimeError,
-            r"result type .* can't be cast to the desired output type"
+            RuntimeError, r"result type .* can't be cast to the desired output type"
         ):
             tensor.mvlgamma_(2)
 
@@ -1907,6 +1906,7 @@ class TestUnaryUfuncs(TestCase):
 
         self.assertTrue(result.dtype.is_floating_point)
         self.assertTrue(torch.all(torch.isfinite(result)))
+
 
 instantiate_device_type_tests(TestUnaryUfuncs, globals())
 

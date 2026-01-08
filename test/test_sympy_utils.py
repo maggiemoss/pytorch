@@ -128,9 +128,7 @@ def valid_binary(fn, a, b):
         return False
     elif fn == "pow_by_natural" and (
         # sympy will expand to x*x*... for integral b; don't do it if it's big
-        b > 4
-        or b < 0
-        or (a == b == 0)
+        b > 4 or b < 0 or (a == b == 0)
     ):
         return False
     elif fn == "mod" and (a < 0 or b <= 0):
@@ -282,12 +280,12 @@ class TestValueRanges(TestCase):
 
     def test_trunc_infinite(self):
         self.assertEqual(
-            ValueRangeAnalysis.trunc(ValueRanges.wrap(sympy.Float('inf'))),
-            ValueRanges.wrap(sympy.Float('inf')),
+            ValueRangeAnalysis.trunc(ValueRanges.wrap(sympy.Float("inf"))),
+            ValueRanges.wrap(sympy.Float("inf")),
         )
         self.assertEqual(
-            ValueRangeAnalysis.trunc(ValueRanges.wrap(sympy.Float('-inf'))),
-            ValueRanges.wrap(sympy.Float('-inf')),
+            ValueRangeAnalysis.trunc(ValueRanges.wrap(sympy.Float("-inf"))),
+            ValueRanges.wrap(sympy.Float("-inf")),
         )
 
     @parametrize("fn", UNARY_BOOL_OPS)
@@ -399,7 +397,6 @@ class TestValueRanges(TestCase):
                 r = getattr(ReferenceAnalysis, fn)(a, b)
                 self.assertIn(r, ref_r)
 
-
     def test_python_mod(self):
         """Test python_mod value range analysis."""
         # Test with positive divisor
@@ -429,23 +426,31 @@ class TestValueRanges(TestCase):
 
         # Test with infinite bounds
         # x % [1, int_oo] should be in [0, int_oo - 1] = [0, int_oo]
-        r = ValueRangeAnalysis.python_mod(ValueRanges(-100, 100), ValueRanges(1, int_oo))
+        r = ValueRangeAnalysis.python_mod(
+            ValueRanges(-100, 100), ValueRanges(1, int_oo)
+        )
         self.assertEqual(r.lower, 0)
         self.assertEqual(r.upper, int_oo)  # int_oo - 1 == int_oo
 
         # x % [-int_oo, -1] should be in [-int_oo + 1, 0] = [-int_oo, 0]
-        r = ValueRangeAnalysis.python_mod(ValueRanges(-100, 100), ValueRanges(-int_oo, -1))
+        r = ValueRangeAnalysis.python_mod(
+            ValueRanges(-100, 100), ValueRanges(-int_oo, -1)
+        )
         self.assertEqual(r.lower, -int_oo)  # -int_oo + 1 == -int_oo
         self.assertEqual(r.upper, 0)
 
         # x % [-int_oo, int_oo] should be in [-int_oo + 1, int_oo - 1] = [-int_oo, int_oo]
-        r = ValueRangeAnalysis.python_mod(ValueRanges(-100, 100), ValueRanges(-int_oo, int_oo))
+        r = ValueRangeAnalysis.python_mod(
+            ValueRanges(-100, 100), ValueRanges(-int_oo, int_oo)
+        )
         self.assertEqual(r.lower, -int_oo)  # -int_oo + 1 == -int_oo
         self.assertEqual(r.upper, int_oo)  # int_oo - 1 == int_oo
 
         # x % [0, int_oo] should be in [0, int_oo - 1] = [0, int_oo]
         # (assuming y != 0 at runtime, lower bound should be 0, not 1)
-        r = ValueRangeAnalysis.python_mod(ValueRanges(-int_oo, int_oo), ValueRanges(0, int_oo))
+        r = ValueRangeAnalysis.python_mod(
+            ValueRanges(-int_oo, int_oo), ValueRanges(0, int_oo)
+        )
         self.assertEqual(r.lower, 0)
         self.assertEqual(r.upper, int_oo)  # int_oo - 1 == int_oo
 
@@ -1040,6 +1045,7 @@ class TestSingletonInt(TestCase):
 
         self.assertEqual(j1.free_symbols, set())
 
+
 class TestIdentity(TestCase):
     def test_expand_identity(self):
         """
@@ -1071,6 +1077,7 @@ class TestIdentity(TestCase):
         tup_I = Identity(tup)
         self.assertRaises(TypeError, int, tup_I)
         self.assertRaises(TypeError, float, tup_I)
+
 
 class TestTypedExpr(TestCase):
     def test_typed_expr(self):

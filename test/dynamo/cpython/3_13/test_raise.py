@@ -31,6 +31,7 @@ redirect_imports = (
     "test.typinganndata.ann_module",
 )
 
+
 class RedirectImportFinder(importlib.abc.MetaPathFinder):
     def find_spec(self, fullname, path, target=None):
         # Check if the import is the problematic one
@@ -46,6 +47,7 @@ class RedirectImportFinder(importlib.abc.MetaPathFinder):
             except ImportError:
                 return None
         return None
+
 
 # Add the custom finder to sys.meta_path
 sys.meta_path.insert(0, RedirectImportFinder())
@@ -74,6 +76,7 @@ def get_tb():
 class Context:
     def __enter__(self):
         return self
+
     def __exit__(self, exc_type, exc_value, exc_tb):
         return True
 
@@ -109,6 +112,7 @@ class TestRaise(__TestCase):
                 except KeyError:
                     pass
                 raise
+
         self.assertRaises(TypeError, reraise)
 
     def test_finally_reraise(self):
@@ -120,16 +124,19 @@ class TestRaise(__TestCase):
                     raise KeyError("caught")
                 finally:
                     raise
+
         self.assertRaises(KeyError, reraise)
 
     def test_nested_reraise(self):
         def nested_reraise():
             raise
+
         def reraise():
             try:
                 raise TypeError("foo")
             except:
                 nested_reraise()
+
         self.assertRaises(TypeError, reraise)
 
     def test_raise_from_None(self):
@@ -150,6 +157,7 @@ class TestRaise(__TestCase):
                 with Context():
                     pass
                 raise
+
         self.assertRaises(TypeError, reraise)
 
     def test_with_reraise2(self):
@@ -160,6 +168,7 @@ class TestRaise(__TestCase):
                 with Context():
                     raise KeyError("caught")
                 raise
+
         self.assertRaises(TypeError, reraise)
 
     def test_yield_reraise(self):
@@ -169,6 +178,7 @@ class TestRaise(__TestCase):
             except:
                 yield 1
                 raise
+
         g = reraise()
         next(g)
         self.assertRaises(TypeError, lambda: next(g))
@@ -176,6 +186,7 @@ class TestRaise(__TestCase):
 
     def test_erroneous_exception(self):
         with torch._dynamo.error_on_graph_break(False):
+
             class MyException(Exception):
                 def __init__(self):
                     raise RuntimeError()
@@ -190,6 +201,7 @@ class TestRaise(__TestCase):
     def test_new_returns_invalid_instance(self):
         # See issue #11627.
         with torch._dynamo.error_on_graph_break(False):
+
             class MyException(Exception):
                 def __new__(cls, *args):
                     return object()
@@ -204,9 +216,7 @@ class TestRaise(__TestCase):
             self.assertEqual(str(e), "(3,)")
 
 
-
 class TestCause(__TestCase):
-
     def testCauseSyntax(self):
         try:
             try:
@@ -244,10 +254,12 @@ class TestCause(__TestCase):
 
     def test_class_cause_nonexception_result(self):
         with torch._dynamo.error_on_graph_break(False):
+
             class ConstructsNone(BaseException):
                 @classmethod
                 def __new__(*args, **kwargs):
                     return None
+
         try:
             raise IndexError from ConstructsNone
         except TypeError as e:
@@ -268,6 +280,7 @@ class TestCause(__TestCase):
 
     def test_erroneous_cause(self):
         with torch._dynamo.error_on_graph_break(False):
+
             class MyException(Exception):
                 def __init__(self):
                     raise RuntimeError()
@@ -281,7 +294,6 @@ class TestCause(__TestCase):
 
 
 class TestTraceback(__TestCase):
-
     def test_sets_traceback(self):
         try:
             raise IndexError()
@@ -302,7 +314,6 @@ class TestTraceback(__TestCase):
 
 
 class TestTracebackType(__TestCase):
-
     def raiser(self):
         raise ValueError
 
@@ -409,7 +420,7 @@ class TestContext(__TestCase):
     def test_c_exception_context(self):
         try:
             try:
-                1/0
+                1 / 0
             except:
                 raise OSError
         except OSError as e:
@@ -420,7 +431,7 @@ class TestContext(__TestCase):
     def test_c_exception_raise(self):
         try:
             try:
-                1/0
+                1 / 0
             except:
                 xyzzy
         except NameError as e:
@@ -442,7 +453,7 @@ class TestContext(__TestCase):
     def test_raise_finally(self):
         try:
             try:
-                1/0
+                1 / 0
             finally:
                 raise OSError
         except OSError as e:
@@ -452,14 +463,17 @@ class TestContext(__TestCase):
 
     def test_context_manager(self):
         with torch._dynamo.error_on_graph_break(False):
+
             class ContextManager:
                 def __enter__(self):
                     pass
+
                 def __exit__(self, t, v, tb):
                     xyzzy
+
         try:
             with ContextManager():
-                1/0
+                1 / 0
         except NameError as e:
             self.assertIsInstance(e.__context__, ZeroDivisionError)
         else:
@@ -469,7 +483,7 @@ class TestContext(__TestCase):
         # Self-cycles (when re-raising a caught exception) are broken
         try:
             try:
-                1/0
+                1 / 0
             except ZeroDivisionError as e:
                 raise e
         except ZeroDivisionError as e:
@@ -483,7 +497,7 @@ class TestContext(__TestCase):
                 xyzzy
             except NameError as a:
                 try:
-                    1/0
+                    1 / 0
                 except ZeroDivisionError:
                     raise a
         except NameError as e:
@@ -529,13 +543,15 @@ class TestContext(__TestCase):
 
     def test_3611(self):
         import gc
+
         # A re-raised exception in a __del__ caused the __context__
         # to be cleared
         with torch._dynamo.error_on_graph_break(False):
+
             class C:
                 def __del__(self):
                     try:
-                        1/0
+                        1 / 0
                     except:
                         raise
 
@@ -562,7 +578,7 @@ class TestContext(__TestCase):
 class TestRemovedFunctionality(__TestCase):
     def test_tuples(self):
         try:
-            raise (IndexError, KeyError) # This should be a tuple!
+            raise (IndexError, KeyError)  # This should be a tuple!
         except TypeError:
             pass
         else:

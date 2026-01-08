@@ -3,6 +3,7 @@ import torch
 
 from functorch.experimental.control_flow import cond
 
+
 class CondBranchNonlocalVariables(torch.nn.Module):
     """
     The branch functions (`true_fn` and `false_fn`) passed to cond() must follow these rules:
@@ -20,13 +21,16 @@ class CondBranchNonlocalVariables(torch.nn.Module):
     my_tensor_var = x + 100
     my_primitive_var = 3.14
 
+
     def true_fn(y):
         nonlocal my_tensor_var, my_primitive_var
         return y + my_tensor_var + my_primitive_var
 
+
     def false_fn(y):
         nonlocal my_tensor_var, my_primitive_var
         return y - my_tensor_var - my_primitive_var
+
 
     return cond(x.shape[0] > 5, true_fn, false_fn, [x])
     ```
@@ -50,6 +54,7 @@ class CondBranchNonlocalVariables(torch.nn.Module):
             false_fn,
             [x, my_tensor_var, torch.tensor(my_primitive_var)],
         )
+
 
 example_args = (torch.randn(6),)
 tags = {

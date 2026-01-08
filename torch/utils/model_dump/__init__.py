@@ -83,8 +83,15 @@ import torch.utils.show_pickle
 
 DEFAULT_EXTRA_FILE_SIZE_LIMIT = 16 * 1024
 
-__all__ = ['get_storage_info', 'hierarchical_pickle', 'get_model_info', 'get_inline_skeleton',
-           'burn_in_info', 'get_info_and_burn_skeleton']
+__all__ = [
+    "get_storage_info",
+    "hierarchical_pickle",
+    "get_model_info",
+    "get_inline_skeleton",
+    "burn_in_info",
+    "get_info_and_burn_skeleton",
+]
+
 
 def get_storage_info(storage):
     if not isinstance(storage, torch.utils.show_pickle.FakeObject):
@@ -133,8 +140,8 @@ def hierarchical_pickle(data):
         }
     if isinstance(data, torch.utils.show_pickle.FakeObject):
         typename = f"{data.module}.{data.name}"
-        if (
-            typename.startswith(('__torch__.', 'torch.jit.LoweredWrapper.', 'torch.jit.LoweredModule.'))
+        if typename.startswith(
+            ("__torch__.", "torch.jit.LoweredWrapper.", "torch.jit.LoweredModule.")
         ):
             if data.args != ():
                 raise AssertionError("data.args is not ()")
@@ -147,7 +154,9 @@ def hierarchical_pickle(data):
                 raise AssertionError("data.state is not None")
             storage, offset, size, stride, requires_grad, *_ = data.args
             storage_info = get_storage_info(storage)
-            return {"__tensor_v2__": [storage_info, offset, size, stride, requires_grad]}
+            return {
+                "__tensor_v2__": [storage_info, offset, size, stride, requires_grad]
+            }
         if typename == "torch._utils._rebuild_qtensor":
             if data.state is not None:
                 raise AssertionError("data.state is not None")
@@ -170,7 +179,16 @@ def hierarchical_pickle(data):
             else:
                 quantizer_extra = []
             quantizer_json = [quantizer[0].name] + quantizer_extra
-            return {"__qtensor__": [storage_info, offset, size, stride, quantizer_json, requires_grad]}
+            return {
+                "__qtensor__": [
+                    storage_info,
+                    offset,
+                    size,
+                    stride,
+                    quantizer_json,
+                    requires_grad,
+                ]
+            }
         if typename == "torch.jit._pickle.restore_type_tag":
             if data.state is not None:
                 raise AssertionError("data.state is not None")
@@ -181,14 +199,14 @@ def hierarchical_pickle(data):
         if re.fullmatch(r"torch\.jit\._pickle\.build_[a-z]+list", typename):
             if data.state is not None:
                 raise AssertionError("data.state is not None")
-            ls, = data.args
+            (ls,) = data.args
             if not isinstance(ls, list):
                 raise AssertionError("ls is not a list")
             return hierarchical_pickle(ls)
         if typename == "torch.device":
             if data.state is not None:
                 raise AssertionError("data.state is not None")
-            name, = data.args
+            (name,) = data.args
             if not isinstance(name, str):
                 raise AssertionError("name is not a string")
             # Just forget that it was a device and return the name.
@@ -196,7 +214,7 @@ def hierarchical_pickle(data):
         if typename == "builtin.UnicodeDecodeError":
             if data.state is not None:
                 raise AssertionError("data.state is not None")
-            msg, = data.args
+            (msg,) = data.args
             if not isinstance(msg, str):
                 raise AssertionError("msg is not a string")
             # Hack: Pretend this is a module so we don't need custom serialization.
@@ -211,9 +229,8 @@ def hierarchical_pickle(data):
 
 
 def get_model_info(
-        path_or_file,
-        title=None,
-        extra_file_size_limit=DEFAULT_EXTRA_FILE_SIZE_LIMIT):
+    path_or_file, title=None, extra_file_size_limit=DEFAULT_EXTRA_FILE_SIZE_LIMIT
+):
     """Get JSON-friendly information about a model.
 
     The result is suitable for being saved as model_info.json,
@@ -260,7 +277,9 @@ def get_model_info(
             if path_prefix is None:
                 raise AssertionError("path_prefix is None")
             with zf.open(path_prefix + f"/{name}.pkl") as handle:
-                raw = torch.utils.show_pickle.DumpUnpickler(handle, catch_invalid_utf8=True).load()
+                raw = torch.utils.show_pickle.DumpUnpickler(
+                    handle, catch_invalid_utf8=True
+                ).load()
                 return hierarchical_pickle(raw)
 
         model_data = get_pickle("data")
@@ -271,7 +290,7 @@ def get_model_info(
         # so reused strings are stored efficiently.
         # However, JSON has no way of representing this,
         # so we have to do it manually.
-        interned_strings : dict[str, int] = {}
+        interned_strings: dict[str, int] = {}
 
         def intern(s):
             if s not in interned_strings:
@@ -292,15 +311,17 @@ def get_model_info(
             debug_info_t = pickle.loads(raw_debug)
             text_table = None
 
-            if (len(debug_info_t) == 3 and
-                    isinstance(debug_info_t[0], str) and
-                    debug_info_t[0] == 'FORMAT_WITH_STRING_TABLE'):
+            if (
+                len(debug_info_t) == 3
+                and isinstance(debug_info_t[0], str)
+                and debug_info_t[0] == "FORMAT_WITH_STRING_TABLE"
+            ):
                 _, text_table, content = debug_info_t
 
                 def parse_new_format(line):
                     # (0, (('', '', 0), 0, 0))
                     num, ((text_indexes, fname_idx, offset), start, end), tag = line
-                    text = ''.join(text_table[x] for x in text_indexes)  # type: ignore[index]
+                    text = "".join(text_table[x] for x in text_indexes)  # type: ignore[index]
                     fname = text_table[fname_idx]  # type: ignore[index]
                     return num, ((text, fname, offset), start, end), tag
 
@@ -308,9 +329,9 @@ def get_model_info(
 
             debug_info = list(debug_info_t)
             if not debug_info:
-                debug_info.append((0, (('', '', 0), 0, 0)))
+                debug_info.append((0, (("", "", 0), 0, 0)))
             if debug_info[-1][0] != len(raw_code):
-                debug_info.append((len(raw_code), (('', '', 0), 0, 0)))
+                debug_info.append((len(raw_code), (("", "", 0), 0, 0)))
 
             code_parts = []
             for di, di_next in itertools.pairwise(debug_info):
@@ -328,10 +349,21 @@ def get_model_info(
                     s_start = 0
                     s_end = 0
                 text = raw_code[start:end]
-                code_parts.append([text.decode("utf-8"), intern(s_file), s_line, intern(s_text), s_start, s_end])
+                code_parts.append(
+                    [
+                        text.decode("utf-8"),
+                        intern(s_file),
+                        s_line,
+                        intern(s_text),
+                        s_start,
+                        s_end,
+                    ]
+                )
             code_files[zi.filename] = code_parts
 
-        extra_files_json_pattern = re.compile(re.escape(path_prefix) + "/extra/.*\\.json")
+        extra_files_json_pattern = re.compile(
+            re.escape(path_prefix) + "/extra/.*\\.json"
+        )
         extra_files_jsons = {}
         for zi in zf.infolist():
             if not extra_files_json_pattern.fullmatch(zi.filename):
@@ -356,14 +388,18 @@ def get_model_info(
                 # TODO: handle errors here and just ignore the file?
                 # NOTE: For a lot of these files (like bytecode),
                 # we could get away with just unpickling, but this should be safer.
-                obj = torch.utils.show_pickle.DumpUnpickler(handle, catch_invalid_utf8=True).load()
+                obj = torch.utils.show_pickle.DumpUnpickler(
+                    handle, catch_invalid_utf8=True
+                ).load()
             buf = io.StringIO()
             pprint.pprint(obj, buf)
             contents = buf.getvalue()
             # Checked the rendered length instead of the file size
             # because pickles with shared structure can explode in size during rendering.
-            if os.path.basename(zi.filename) not in always_render_pickles and \
-                    len(contents) > extra_file_size_limit:
+            if (
+                os.path.basename(zi.filename) not in always_render_pickles
+                and len(contents) > extra_file_size_limit
+            ):
                 continue
             extra_pickles[zi.filename] = contents
 
@@ -418,7 +454,9 @@ def burn_in_info(skeleton, info):
     # mess up our page.  Unconditionally escape fixes that.
     return skeleton.replace(
         "BURNED_IN_MODEL_INFO = null",
-        "BURNED_IN_MODEL_INFO = " + json.dumps(info, sort_keys=True).replace("/", "\\/"))
+        "BURNED_IN_MODEL_INFO = "
+        + json.dumps(info, sort_keys=True).replace("/", "\\/"),
+    )
 
 
 def get_info_and_burn_skeleton(path_or_bytesio, **kwargs):
@@ -429,7 +467,10 @@ def get_info_and_burn_skeleton(path_or_bytesio, **kwargs):
 
 
 def main(argv, *, stdout=None) -> None:
-    warnings.warn("torch.utils.model_dump is deprecated and will be removed in a future PyTorch release.", stacklevel=2)
+    warnings.warn(
+        "torch.utils.model_dump is deprecated and will be removed in a future PyTorch release.",
+        stacklevel=2,
+    )
     parser = argparse.ArgumentParser()
     parser.add_argument("--style", choices=["json", "html"])
     parser.add_argument("--title")

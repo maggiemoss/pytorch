@@ -32,6 +32,7 @@ redirect_imports = (
     "test.typinganndata.ann_module",
 )
 
+
 class RedirectImportFinder(importlib.abc.MetaPathFinder):
     def find_spec(self, fullname, path, target=None):
         # Check if the import is the problematic one
@@ -48,6 +49,7 @@ class RedirectImportFinder(importlib.abc.MetaPathFinder):
                 return None
         return None
 
+
 # Add the custom finder to sys.meta_path
 sys.meta_path.insert(0, RedirectImportFinder())
 
@@ -61,15 +63,17 @@ class TestPEP479(__TestCase):
     def test_stopiteration_wrapping(self):
         def f():
             raise StopIteration
+
         def g():
             yield f()
-        with self.assertRaisesRegex(RuntimeError,
-                                    "generator raised StopIteration"):
+
+        with self.assertRaisesRegex(RuntimeError, "generator raised StopIteration"):
             next(g())
 
     def test_stopiteration_wrapping_context(self):
         def f():
             raise StopIteration
+
         def g():
             yield f()
 
@@ -80,8 +84,9 @@ class TestPEP479(__TestCase):
             self.assertIs(type(exc.__context__), StopIteration)
             self.assertTrue(exc.__suppress_context__)
         else:
-            self.fail('__cause__, __context__, or __suppress_context__ '
-                      'were not properly set')
+            self.fail(
+                "__cause__, __context__, or __suppress_context__ were not properly set"
+            )
 
 
 if __name__ == "__main__":

@@ -17,6 +17,4 @@ class B[T, *Ts, **P]:
     z: P
 
 
-def generic_function[T, *Ts, **P](
-    x: T, *y: *Ts, z: P.args, zz: P.kwargs
-) -> None: ...
+def generic_function[T, *Ts, **P](x: T, *y: *Ts, z: P.args, zz: P.kwargs) -> None: ...

@@ -32,6 +32,7 @@ redirect_imports = (
     "test.typinganndata.ann_module",
 )
 
+
 class RedirectImportFinder(importlib.abc.MetaPathFinder):
     def find_spec(self, fullname, path, target=None):
         # Check if the import is the problematic one
@@ -48,6 +49,7 @@ class RedirectImportFinder(importlib.abc.MetaPathFinder):
                 return None
         return None
 
+
 # Add the custom finder to sys.meta_path
 sys.meta_path.insert(0, RedirectImportFinder())
 
@@ -56,6 +58,7 @@ sys.meta_path.insert(0, RedirectImportFinder())
 
 import unittest
 
+
 class ExceptTestCases(__TestCase):
     def test_try_except_else_finally(self):
         hit_except = False
@@ -63,7 +66,7 @@ class ExceptTestCases(__TestCase):
         hit_finally = False
 
         try:
-            raise Exception('nyaa!')
+            raise Exception("nyaa!")
         except:
             hit_except = True
         else:
@@ -98,7 +101,7 @@ class ExceptTestCases(__TestCase):
         hit_finally = False
 
         try:
-            raise Exception('yarr!')
+            raise Exception("yarr!")
         except:
             hit_except = True
         finally:
@@ -125,7 +128,7 @@ class ExceptTestCases(__TestCase):
         hit_except = False
 
         try:
-            raise Exception('ahoy!')
+            raise Exception("ahoy!")
         except:
             hit_except = True
 
@@ -146,7 +149,7 @@ class ExceptTestCases(__TestCase):
         hit_else = False
 
         try:
-            raise Exception('foo!')
+            raise Exception("foo!")
         except:
             hit_except = True
         else:
@@ -186,7 +189,7 @@ class ExceptTestCases(__TestCase):
 
         try:
             try:
-                raise Exception('inner exception')
+                raise Exception("inner exception")
             except:
                 hit_inner_except = True
             finally:
@@ -213,7 +216,7 @@ class ExceptTestCases(__TestCase):
             else:
                 hit_inner_else = True
 
-            raise Exception('outer exception')
+            raise Exception("outer exception")
         except:
             hit_except = True
         else:
@@ -236,10 +239,10 @@ class ExceptTestCases(__TestCase):
 
         try:
             try:
-                raise Exception('inner exception')
+                raise Exception("inner exception")
             except:
                 hit_inner_except = True
-                raise Exception('outer exception')
+                raise Exception("outer exception")
             else:
                 hit_inner_else = True
         except:
@@ -269,7 +272,7 @@ class ExceptTestCases(__TestCase):
                 hit_inner_except = True
             else:
                 hit_inner_else = True
-                raise Exception('outer exception')
+                raise Exception("outer exception")
         except:
             hit_except = True
         else:
@@ -300,7 +303,7 @@ class ExceptTestCases(__TestCase):
                 hit_inner_else = True
             finally:
                 hit_inner_finally = True
-                raise Exception('outer exception')
+                raise Exception("outer exception")
         except:
             hit_except = True
         else:
@@ -325,21 +328,20 @@ class ExceptTestCases(__TestCase):
 
         try:
             try:
-                raise Exception('inner exception')
+                raise Exception("inner exception")
             except:
                 hit_inner_except = True
             else:
                 hit_inner_else = True
             finally:
                 hit_inner_finally = True
-                raise Exception('outer exception')
+                raise Exception("outer exception")
         except:
             hit_except = True
         else:
             hit_else = True
         finally:
             hit_finally = True
-
 
         self.assertTrue(hit_inner_except)
         self.assertFalse(hit_inner_else)
@@ -349,5 +351,5 @@ class ExceptTestCases(__TestCase):
         self.assertTrue(hit_except)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     run_tests()

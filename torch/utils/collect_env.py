@@ -370,10 +370,10 @@ def get_intel_gpu_driver_version(run_lambda):
             if type(obj) is list:
                 for o in obj:
                     lst.append(
-                        f'* {o["DeviceName"]}: {o["DriverVersion"]} ({o["DriverDate"]})'
+                        f"* {o['DeviceName']}: {o['DriverVersion']} ({o['DriverDate']})"
                     )
             else:
-                lst.append(f'* {obj["DriverVersion"]} ({obj["DriverDate"]})')
+                lst.append(f"* {obj['DriverVersion']} ({obj['DriverDate']})")
         except ValueError as e:
             lst.append(txt)
             lst.append(str(e))
@@ -390,7 +390,7 @@ def get_intel_gpu_onboard(run_lambda):
                 obj = json.loads(txt)
                 device_list = obj.get("device_list", [])
                 if isinstance(device_list, list) and device_list:
-                    lst.extend(f'* {device["device_name"]}' for device in device_list)
+                    lst.extend(f"* {device['device_name']}" for device in device_list)
                 else:
                     lst.append("N/A")
             except (ValueError, TypeError) as e:
@@ -408,9 +408,9 @@ def get_intel_gpu_onboard(run_lambda):
             try:
                 obj = json.loads(txt)
                 if isinstance(obj, list) and obj:
-                    lst.extend(f'* {device["DeviceName"]}' for device in obj)
+                    lst.extend(f"* {device['DeviceName']}" for device in obj)
                 else:
-                    lst.append(f'* {obj.get("DeviceName", "N/A")}')
+                    lst.append(f"* {obj.get('DeviceName', 'N/A')}")
             except ValueError as e:
                 lst.append(txt)
                 lst.append(str(e))
@@ -568,7 +568,7 @@ def get_windows_version(run_lambda):
     )
     try:
         obj = json.loads(ret)
-        ret = f'{obj["Caption"]} ({obj["Version"]} {obj["OSArchitecture"]})'
+        ret = f"{obj['Caption']} ({obj['Version']} {obj['OSArchitecture']})"
     except ValueError as e:
         ret += f"\n{str(e)}"
     return ret
@@ -655,8 +655,7 @@ def get_pip_packages(run_lambda, patterns=None):
 
 
 def get_cachingallocator_config() -> _Dict[str, str]:
-    """Return the caching allocator configuration from environment variables.
-    """
+    """Return the caching allocator configuration from environment variables."""
     # pyrefly: ignore [bad-return]
     return {
         var: os.environ.get(var)
@@ -736,7 +735,9 @@ def get_env_info():
             cuda_version_str = "N/A"
             hip_compiled_version = torch.version.hip
     else:
-        version_str = debug_mode_str = cuda_available_str = cuda_version_str = xpu_available_str = "N/A"  # type: ignore[assignment]
+        version_str = debug_mode_str = cuda_available_str = cuda_version_str = (
+            xpu_available_str
+        ) = "N/A"  # type: ignore[assignment]
         hip_compiled_version = hip_runtime_version = miopen_runtime_version = "N/A"
 
     sys_version = sys.version.replace("\n", " ")

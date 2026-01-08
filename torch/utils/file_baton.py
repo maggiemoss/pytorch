@@ -7,7 +7,9 @@ import warnings
 class FileBaton:
     """A primitive, file-based synchronization utility."""
 
-    def __init__(self, lock_file_path, wait_seconds=0.1, warn_after_seconds=None) -> None:
+    def __init__(
+        self, lock_file_path, wait_seconds=0.1, warn_after_seconds=None
+    ) -> None:
         """
         Create a new :class:`FileBaton`.
 
@@ -51,9 +53,15 @@ class FileBaton:
             time.sleep(self.wait_seconds)
 
             if self.warn_after_seconds is not None:
-                if time.time() - start_time > self.warn_after_seconds and not has_warned:
-                    warnings.warn(f'Waited on lock file "{self.lock_file_path}" for '
-                                  f'{self.warn_after_seconds} seconds.', stacklevel=2)
+                if (
+                    time.time() - start_time > self.warn_after_seconds
+                    and not has_warned
+                ):
+                    warnings.warn(
+                        f'Waited on lock file "{self.lock_file_path}" for '
+                        f"{self.warn_after_seconds} seconds.",
+                        stacklevel=2,
+                    )
                     has_warned = True
 
     def release(self) -> None:

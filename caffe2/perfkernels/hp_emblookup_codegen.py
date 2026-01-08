@@ -154,8 +154,7 @@ def unroll(uf, IndexType, InType, OutType, use_weights, isa, fused, use_offsets)
     )
 
     code.append(
-        f"        const {InType}* ip_next_T0 = "
-        "&input[idx_pref_T0 * fused_block_size];"
+        f"        const {InType}* ip_next_T0 = &input[idx_pref_T0 * fused_block_size];"
     )
 
     for i in range(uf):
@@ -354,8 +353,7 @@ def generic(IndexType, InType, OutType, use_weights, isa, fused, use_offsets):
         + "        }"
     )
     code.append(
-        f"        const {InType}* ip_next_T0 = "
-        "&input[idx_pref_T0 * fused_block_size];"
+        f"        const {InType}* ip_next_T0 = &input[idx_pref_T0 * fused_block_size];"
     )
 
     # compute and store main loop
@@ -465,7 +463,9 @@ for o in options:
     prefix = "Fused8BitRowwise" if opts.fused else ""
     code.append("template <bool IS_WEIGHT_POSITIONAL>")
     if opts.use_offsets:
-        fn_base = f"{prefix}EmbeddingLookupIdx_{IndexTypeName}_{InTypeName}_{OutTypeName}"
+        fn_base = (
+            f"{prefix}EmbeddingLookupIdx_{IndexTypeName}_{InTypeName}_{OutTypeName}"
+        )
     else:
         fn_base = f"{prefix}EmbeddingLookup_{IndexTypeName}_{InTypeName}_{OutTypeName}"
     suffix = "__avx2_fma"
@@ -543,7 +543,15 @@ for o in options:
         if len(ret_string) <= 80:
             code.append(ret_string)
         else:
-            code.append("  return " + fn_base + suffix + "<" + extra_space + is_weight_positional + ">(")
+            code.append(
+                "  return "
+                + fn_base
+                + suffix
+                + "<"
+                + extra_space
+                + is_weight_positional
+                + ">("
+            )
         code.append("      block_size,")
         code.append("      output_size,")
         code.append("      index_size,")

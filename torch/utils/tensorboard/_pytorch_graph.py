@@ -167,7 +167,9 @@ class GraphPy:
 
     def populate_namespace_from_OP_to_IO(self) -> None:
         for node in self.nodes_op:
-            for node_output, outputSize in zip(node.outputs, node.outputstensor_size, strict=True):
+            for node_output, outputSize in zip(
+                node.outputs, node.outputstensor_size, strict=True
+            ):
                 self.scope_name_appeared.append(node.scopeName)
                 self.nodes_io[node_output] = NodeBase(
                     node_output,
@@ -199,7 +201,6 @@ class GraphPy:
                 self.unique_name_to_scoped_name[key] = node.scope + "/" + node.debugName
                 if node.scope == "" and self.shallowest_scope_name:
                     self.unique_name_to_scoped_name[node.debugName] = (
-
                         self.shallowest_scope_name + "/" + node.debugName
                     )
 

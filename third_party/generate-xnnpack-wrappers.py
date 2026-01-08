@@ -43,7 +43,6 @@ WRAPPER_SRC_NAMES = {
     "PROD_AVXVNNI_MICROKERNEL_SRCS": "defined(__i386__) || defined(__i686__) || defined(__x86_64__)",
     "AARCH32_ASM_MICROKERNEL_SRCS": "defined(__arm__)",
     "AARCH64_ASM_MICROKERNEL_SRCS": "defined(__aarch64__)",
-
     # add non-prod microkernel sources here:
 }
 
@@ -88,23 +87,26 @@ SRC_NAMES = {
     "PROD_AVXVNNI_MICROKERNEL_SRCS",
     "AARCH32_ASM_MICROKERNEL_SRCS",
     "AARCH64_ASM_MICROKERNEL_SRCS",
-
     # add non-prod microkernel sources here:
 }
 
 # Source files not needed in buck build.
-IGNORED_SOURCES = set((
-    "\"${PROJECT_BINARY_DIR}/build_identifier.c\"", # Not currently used and requires build-time codegen.
-))
+IGNORED_SOURCES = set(
+    (
+        '"${PROJECT_BINARY_DIR}/build_identifier.c"',  # Not currently used and requires build-time codegen.
+    )
+)
+
 
 def handle_singleline_parse(line):
     start_index = line.find("(")
     end_index = line.find(")")
-    line = line[start_index + 1:end_index]
+    line = line[start_index + 1 : end_index]
     key_val = line.split(" ")
     return key_val[0], [x[4:] for x in key_val[1:]]
 
-def update_sources(xnnpack_path, cmakefile = "XNNPACK/CMakeLists.txt"):
+
+def update_sources(xnnpack_path, cmakefile="XNNPACK/CMakeLists.txt"):
     print(f"Updating sources from {cmakefile}")
     sources = collections.defaultdict(list)
     with open(os.path.join(xnnpack_path, cmakefile)) as cmake:
@@ -112,13 +114,15 @@ def update_sources(xnnpack_path, cmakefile = "XNNPACK/CMakeLists.txt"):
         i = 0
         while i < len(lines):
             line = lines[i]
-            
+
             if lines[i].startswith("INCLUDE"):
                 file, _ = handle_singleline_parse(line)
                 if file.startswith("cmake/gen/"):
                     path = Path(xnnpack_path) / "XNNPACK" / file
-                    local_sources = update_sources(xnnpack_path, path.absolute().as_posix())
-                    for k,v in local_sources.items():
+                    local_sources = update_sources(
+                        xnnpack_path, path.absolute().as_posix()
+                    )
+                    for k, v in local_sources.items():
                         if k in sources:
                             sources[k] = sources[k] + local_sources[k]
                         else:
@@ -127,33 +131,38 @@ def update_sources(xnnpack_path, cmakefile = "XNNPACK/CMakeLists.txt"):
             if lines[i].startswith("SET") and "src/" in lines[i]:
                 name, val = handle_singleline_parse(line)
                 sources[name].extend(val)
-                i+=1
+                i += 1
                 continue
 
-            if line.startswith("SET") and line.split('(')[1].strip(' \t\n\r') in set(WRAPPER_SRC_NAMES.keys()) | set(SRC_NAMES):
-                name = line.split('(')[1].strip(' \t\n\r')
+            if line.startswith("SET") and line.split("(")[1].strip(" \t\n\r") in set(
+                WRAPPER_SRC_NAMES.keys()
+            ) | set(SRC_NAMES):
+                name = line.split("(")[1].strip(" \t\n\r")
                 i += 1
-                while i < len(lines) and len(lines[i]) > 0 and ')' not in lines[i]:
+                while i < len(lines) and len(lines[i]) > 0 and ")" not in lines[i]:
                     # remove "src/" at the beginning, remove whitespaces and newline
-                    value = lines[i].strip(' \t\n\r')
+                    value = lines[i].strip(" \t\n\r")
                     if value not in IGNORED_SOURCES:
                         sources[name].append(value[4:])
                     i += 1
                 if i < len(lines) and len(lines[i]) > 4:
                     # remove "src/" at the beginning, possibly ')' at the end
-                    value = lines[i].strip(' \t\n\r)')
+                    value = lines[i].strip(" \t\n\r)")
                     if value not in IGNORED_SOURCES:
                         sources[name].append(value[4:])
             else:
                 i += 1
     return sources
 
+
 def gen_wrappers(xnnpack_path):
     xnnpack_sources = collections.defaultdict(list)
     sources = update_sources(xnnpack_path)
 
-    microkernels_sources = update_sources(xnnpack_path, "XNNPACK/cmake/gen/microkernels.cmake")
-    for key in  microkernels_sources:
+    microkernels_sources = update_sources(
+        xnnpack_path, "XNNPACK/cmake/gen/microkernels.cmake"
+    )
+    for key in microkernels_sources:
         sources[key] = microkernels_sources[key]
 
     for name in WRAPPER_SRC_NAMES:
@@ -183,26 +192,30 @@ def gen_wrappers(xnnpack_path):
                     print(f"#endif /* {condition} */", file=wrapper)
 
     # update xnnpack_wrapper_defs.bzl file under the same folder
-    with open(os.path.join(os.path.dirname(__file__), "xnnpack_wrapper_defs.bzl"), 'w') as wrapper_defs:
+    with open(
+        os.path.join(os.path.dirname(__file__), "xnnpack_wrapper_defs.bzl"), "w"
+    ) as wrapper_defs:
         print('"""', file=wrapper_defs)
         print(BANNER, file=wrapper_defs)
         print('"""', file=wrapper_defs)
         for name in WRAPPER_SRC_NAMES:
-            print('\n' + name + ' = [', file=wrapper_defs)
+            print("\n" + name + " = [", file=wrapper_defs)
             for file_name in sources[name]:
                 print(f'    "xnnpack_wrappers/{file_name}",', file=wrapper_defs)
-            print(']', file=wrapper_defs)
+            print("]", file=wrapper_defs)
 
     # update xnnpack_src_defs.bzl file under the same folder
-    with open(os.path.join(os.path.dirname(__file__), "xnnpack_src_defs.bzl"), 'w') as src_defs:
+    with open(
+        os.path.join(os.path.dirname(__file__), "xnnpack_src_defs.bzl"), "w"
+    ) as src_defs:
         print('"""', file=src_defs)
         print(BANNER, file=src_defs)
         print('"""', file=src_defs)
         for name in SRC_NAMES:
-            print('\n' + name + ' = [', file=src_defs)
+            print("\n" + name + " = [", file=src_defs)
             for file_name in sources[name]:
                 print(f'    "XNNPACK/src/{file_name}",', file=src_defs)
-            print(']', file=src_defs)
+            print("]", file=src_defs)
 
 
 def main(argv):
@@ -212,6 +225,7 @@ def main(argv):
         gen_wrappers(".")
     else:
         gen_wrappers(argv[0])
+
 
 # The first argument is the place where the "xnnpack_wrappers" folder will be created.
 # Run it without arguments will generate "xnnpack_wrappers" in the current path.

@@ -7,7 +7,9 @@ from tensorboard.compat.proto.tensor_shape_pb2 import TensorShapeProto
 
 
 # pyrefly: ignore [not-a-type]
-def attr_value_proto(dtype: object, shape: Sequence[int] | None, s: str | None) -> dict[str, AttrValue]:
+def attr_value_proto(
+    dtype: object, shape: Sequence[int] | None, s: str | None
+) -> dict[str, AttrValue]:
     """Create a dict of objects matching a NodeDef's attr field.
 
     Follows https://github.com/tensorflow/tensorboard/blob/master/tensorboard/compat/proto/attr_value.proto

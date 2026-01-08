@@ -15,7 +15,6 @@ _warned_tensor_cores = False
 _default_float_32_precision = torch.get_float32_matmul_precision()
 
 try:
-
     from tabulate import tabulate
 
     HAS_TABULATE = True
@@ -25,15 +24,21 @@ except ModuleNotFoundError:
     print("tabulate is not installed, please pip install tabulate to use this utility")
 
 if HAS_TABULATE:
+
     def _enable_tensor_cores() -> None:
         global _warned_tensor_cores
 
         if torch.cuda.is_available():
-            if torch.backends.cuda.matmul.allow_tf32 is False and torch.cuda.get_device_capability() >= (8, 0):
+            if (
+                torch.backends.cuda.matmul.allow_tf32 is False
+                and torch.cuda.get_device_capability() >= (8, 0)
+            ):
                 torch.set_float32_matmul_precision("high")
                 if not _warned_tensor_cores:
                     print("Your GPU supports tensor cores")
-                    print("we will enable it automatically by setting `torch.set_float32_matmul_precision('high')`")
+                    print(
+                        "we will enable it automatically by setting `torch.set_float32_matmul_precision('high')`"
+                    )
                     _warned_tensor_cores = True
 
     def _disable_tensor_cores() -> None:
@@ -63,9 +68,13 @@ if HAS_TABULATE:
         # Create the Timer object
         timer = Timer(
             stmt=stmt,
-            globals={"model": model, "sample_input": sample_input, "optimizer": optimizer, "loss_fn": loss_fn},
+            globals={
+                "model": model,
+                "sample_input": sample_input,
+                "optimizer": optimizer,
+                "loss_fn": loss_fn,
+            },
         )
-
 
         result = timer.timeit(number=num_iters)
 
@@ -80,7 +89,7 @@ if HAS_TABULATE:
         backend: str | None = None,
         mode: str | None = "default",
         optimizer: torch.optim.Optimizer | None = None,
-        loss_fn : torch.nn.Module | Callable | None = None,
+        loss_fn: torch.nn.Module | Callable | None = None,
     ):
         """
         Use this utility to benchmark torch.compile
@@ -90,14 +99,20 @@ if HAS_TABULATE:
                 torch._dynamo.reset()
                 compile_counter_with_backend = CompileCounterWithBackend(backend)
                 # pyrefly: ignore [no-matching-overload]
-                opt_model = torch.compile(model, backend=compile_counter_with_backend, mode=mode)
+                opt_model = torch.compile(
+                    model, backend=compile_counter_with_backend, mode=mode
+                )
 
                 # Compilation only happens after the first inference
                 # pyrefly: ignore [bad-argument-type]
-                compilation_time = bench_loop(opt_model, sample_input, 1, optimizer, loss_fn)
+                compilation_time = bench_loop(
+                    opt_model, sample_input, 1, optimizer, loss_fn
+                )
 
                 # pyrefly: ignore [bad-argument-type]
-                running_time = bench_loop(opt_model, sample_input, num_iters, optimizer, loss_fn)
+                running_time = bench_loop(
+                    opt_model, sample_input, num_iters, optimizer, loss_fn
+                )
 
                 if compile_counter_with_backend.frame_count == 0:
                     raise RuntimeError("No compilation occurred during benchmarking.")
@@ -113,21 +128,21 @@ if HAS_TABULATE:
             opt_model = model
             compilation_time = None
             # pyrefly: ignore [bad-argument-type]
-            running_time = bench_loop(opt_model, sample_input, num_iters, optimizer, loss_fn)
+            running_time = bench_loop(
+                opt_model, sample_input, num_iters, optimizer, loss_fn
+            )
 
         compilation_time = round(compilation_time, 2) if compilation_time else None
         running_time = round(running_time, 2) if running_time else None
 
-
         return compilation_time, running_time
 
-
     def bench_all(
-        model : torch.nn.Module | Callable,
+        model: torch.nn.Module | Callable,
         sample_input: torch.Tensor | Any,
-        num_iters : int = 5,
+        num_iters: int = 5,
         optimizer: torch.optim.Optimizer | None = None,
-        loss_fn : torch.nn.Module | Callable | None = None,
+        loss_fn: torch.nn.Module | Callable | None = None,
     ):
         """
         This is a simple utility that can be used to benchmark torch.compile
@@ -145,21 +160,35 @@ if HAS_TABULATE:
         If a compilation fails for any reason including the dependency not being included
         then we will print Failed to compile {backend} with mode {mode}
         """
-        field_names = ["Train/Inference", "Backend", "Mode", "Compilation Time", "Average Running Time"]
+        field_names = [
+            "Train/Inference",
+            "Backend",
+            "Mode",
+            "Compilation Time",
+            "Average Running Time",
+        ]
         table = []
-
 
         eager_time = None
         torch._dynamo.reset()
-        _, eager_time = benchmark_compile(model, sample_input, num_iters, None, None, optimizer)
+        _, eager_time = benchmark_compile(
+            model, sample_input, num_iters, None, None, optimizer
+        )
         table.append(
-            [("Training" if optimizer else "Inference"), "Eager", "-", "-", f"{eager_time} ms"]
+            [
+                ("Training" if optimizer else "Inference"),
+                "Eager",
+                "-",
+                "-",
+                f"{eager_time} ms",
+            ]
         )
 
         for backend in torch._dynamo.list_backends():
-
             if backend == "inductor":
-                mode_options = cast(list[str | None], list(torch._inductor.list_mode_options().keys())) + [None]
+                mode_options = cast(
+                    list[str | None], list(torch._inductor.list_mode_options().keys())
+                ) + [None]
                 for mode in mode_options:
                     if mode == "default":
                         continue
@@ -168,32 +197,46 @@ if HAS_TABULATE:
                         if torch.cuda.is_available():
                             _enable_tensor_cores()
                         compilation_time, running_time = benchmark_compile(
-                            model, sample_input, num_iters, backend, mode, optimizer, loss_fn)
+                            model,
+                            sample_input,
+                            num_iters,
+                            backend,
+                            mode,
+                            optimizer,
+                            loss_fn,
+                        )
                     finally:
                         if torch.cuda.is_available():
                             _disable_tensor_cores()
-                            table.append([
-                                ("Training" if optimizer else "Inference"),
-                                # pyrefly: ignore [redundant-condition]
-                                backend if backend else "-",
-                                mode if mode is not None else "-",
-                                f"{compilation_time} ms " if compilation_time else "-",
-                                f"{running_time} ms " if running_time else "-",
-                            ])
+                            table.append(
+                                [
+                                    ("Training" if optimizer else "Inference"),
+                                    # pyrefly: ignore [redundant-condition]
+                                    backend if backend else "-",
+                                    mode if mode is not None else "-",
+                                    f"{compilation_time} ms "
+                                    if compilation_time
+                                    else "-",
+                                    f"{running_time} ms " if running_time else "-",
+                                ]
+                            )
 
             else:
                 torch._dynamo.reset()
                 compilation_time, running_time = benchmark_compile(
-                    model, sample_input, num_iters, backend, None, optimizer, loss_fn)
+                    model, sample_input, num_iters, backend, None, optimizer, loss_fn
+                )
 
                 if running_time is not None:
-                    table.append([
-                        ("Training" if optimizer else "Inference"),
-                        backend, "-",
-                        f"{compilation_time} ms " or "-",
-                        f"{running_time} ms ",
-                    ])
-
+                    table.append(
+                        [
+                            ("Training" if optimizer else "Inference"),
+                            backend,
+                            "-",
+                            f"{compilation_time} ms " or "-",
+                            f"{running_time} ms ",
+                        ]
+                    )
 
         # pyrefly: ignore [not-callable]
         return tabulate(table, headers=field_names, tablefmt="github")

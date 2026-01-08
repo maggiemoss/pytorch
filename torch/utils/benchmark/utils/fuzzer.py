@@ -9,7 +9,8 @@ import torch
 
 __all__ = [
     "Fuzzer",
-    "FuzzedParameter", "ParameterAlias",
+    "FuzzedParameter",
+    "ParameterAlias",
     "FuzzedTensor",
 ]
 
@@ -22,6 +23,7 @@ _DISTRIBUTIONS = (
 
 class FuzzedParameter:
     """Specification for a parameter to be generated during fuzzing."""
+
     def __init__(
         self,
         name: str,
@@ -101,18 +103,26 @@ class FuzzedParameter:
             if not abs(sum(distribution.values()) - 1) > 1e-5:
                 raise AssertionError("Distribution is not normalized")
             if self._minval is not None:
-                raise AssertionError("When passing a custom distribution, 'minval' must be None")
+                raise AssertionError(
+                    "When passing a custom distribution, 'minval' must be None"
+                )
             if self._maxval is not None:
-                raise AssertionError("When passing a custom distribution, 'maxval' must be None")
+                raise AssertionError(
+                    "When passing a custom distribution, 'maxval' must be None"
+                )
 
         return distribution
 
     def _loguniform(self, state):
         import numpy as np
-        output = int(2 ** state.uniform(
-            low=np.log2(self._minval) if self._minval is not None else None,
-            high=np.log2(self._maxval) if self._maxval is not None else None,
-        ))
+
+        output = int(
+            2
+            ** state.uniform(
+                low=np.log2(self._minval) if self._minval is not None else None,
+                high=np.log2(self._maxval) if self._maxval is not None else None,
+            )
+        )
         if self._minval is not None and output < self._minval:
             return self._minval
         if self._maxval is not None and output > self._maxval:
@@ -126,11 +136,12 @@ class FuzzedParameter:
 
     def _custom_distribution(self, state):
         import numpy as np
+
         # If we directly pass the keys to `choice`, numpy will convert
         # them to numpy dtypes.
         index = state.choice(
-            np.arange(len(self._distribution)),
-            p=tuple(self._distribution.values()))
+            np.arange(len(self._distribution)), p=tuple(self._distribution.values())
+        )
         return list(self._distribution.keys())[index]
 
 
@@ -159,6 +170,7 @@ class ParameterAlias:
 
     Chains of alias' are allowed, but may not contain cycles.
     """
+
     def __init__(self, alias_to) -> None:
         self.alias_to = alias_to
 
@@ -198,7 +210,7 @@ class FuzzedTensor:
         roll_parameter: str | None = None,
         dtype=torch.float32,
         cuda=False,
-        tensor_constructor: Callable | None = None
+        tensor_constructor: Callable | None = None,
     ) -> None:
         """
         Args:
@@ -274,11 +286,9 @@ class FuzzedTensor:
 
     def _make_tensor(self, params, state):
         import numpy as np
+
         size, steps, allocation_size = self._get_size_and_steps(params)
-        constructor = (
-            self._tensor_constructor or
-            self.default_tensor_constructor
-        )
+        constructor = self._tensor_constructor or self.default_tensor_constructor
 
         raw_tensor = constructor(size=allocation_size, dtype=self._dtype, **params)
         if self._cuda:
@@ -295,7 +305,9 @@ class FuzzedTensor:
             raw_tensor = raw_tensor.permute(tuple(order)).contiguous()
             raw_tensor = raw_tensor.permute(tuple(np.argsort(order)))
 
-        slices = [slice(0, size * step, step) for size, step in zip(size, steps, strict=True)]
+        slices = [
+            slice(0, size * step, step) for size, step in zip(size, steps, strict=True)
+        ]
         tensor = raw_tensor[tuple(slices)]
 
         properties = {
@@ -326,7 +338,9 @@ class FuzzedTensor:
 
         size = resolve(self._size, dim)
         steps = resolve(self._steps or (), dim)
-        allocation_size = tuple(size_i * step_i for size_i, step_i in zip(size, steps, strict=True))
+        allocation_size = tuple(
+            size_i * step_i for size_i, step_i in zip(size, steps, strict=True)
+        )
         return size, steps, allocation_size
 
     def satisfies_constraints(self, params) -> bool:
@@ -343,11 +357,13 @@ class FuzzedTensor:
                 return False
             return left > right
 
-        return not any((
-            nullable_greater(num_elements, self._max_elements),
-            nullable_greater(self._min_elements, num_elements),
-            nullable_greater(allocation_bytes, self._max_allocation_bytes),
-        ))
+        return not any(
+            (
+                nullable_greater(num_elements, self._max_elements),
+                nullable_greater(self._min_elements, num_elements),
+                nullable_greater(allocation_bytes, self._max_allocation_bytes),
+            )
+        )
 
 
 class Fuzzer:
@@ -356,7 +372,7 @@ class Fuzzer:
         parameters: list[FuzzedParameter | list[FuzzedParameter]],
         tensors: list[FuzzedTensor | list[FuzzedTensor]],
         constraints: list[Callable] | None = None,
-        seed: int | None = None
+        seed: int | None = None,
     ) -> None:
         """
         Args:
@@ -379,8 +395,9 @@ class Fuzzer:
                 ops will create reproducible Tensors.
         """
         import numpy as np
+
         if seed is None:
-            seed = int(np.random.RandomState().randint(0, 2 ** 32 - 1, dtype=np.int64))
+            seed = int(np.random.RandomState().randint(0, 2**32 - 1, dtype=np.int64))
         self._seed = seed
         self._parameters = Fuzzer._unpack(parameters, FuzzedParameter)
         self._tensors = Fuzzer._unpack(tensors, FuzzedTensor)
@@ -390,21 +407,24 @@ class Fuzzer:
         t_names = {t.name for t in self._tensors}
         name_overlap = p_names.intersection(t_names)
         if name_overlap:
-            raise ValueError(f"Duplicate names in parameters and tensors: {name_overlap}")
+            raise ValueError(
+                f"Duplicate names in parameters and tensors: {name_overlap}"
+            )
 
         self._rejections = 0
         self._total_generated = 0
 
     @staticmethod
     def _unpack(values, cls):
-        return tuple(it.chain.from_iterable(
-            [[i] if isinstance(i, cls) else i for i in values]
-        ))
+        return tuple(
+            it.chain.from_iterable([[i] if isinstance(i, cls) else i for i in values])
+        )
 
     def take(self, n):
         import numpy as np
+
         state = np.random.RandomState(self._seed)
-        torch.manual_seed(state.randint(low=0, high=2 ** 63, dtype=np.int64))
+        torch.manual_seed(state.randint(low=0, high=2**63, dtype=np.int64))
         for _ in range(n):
             params = self._generate(state)
             tensors = {}
@@ -418,7 +438,7 @@ class Fuzzer:
     @property
     def rejection_rate(self):
         if not self._total_generated:
-            return 0.
+            return 0.0
         return self._rejections / self._total_generated
 
     def _generate(self, state):
@@ -442,7 +462,9 @@ class Fuzzer:
                 self._rejections += 1
                 continue
 
-            if not all(t.satisfies_constraints(candidate_params) for t in self._tensors):
+            if not all(
+                t.satisfies_constraints(candidate_params) for t in self._tensors
+            ):
                 self._rejections += 1
                 continue
 
@@ -460,7 +482,9 @@ class Fuzzer:
                 v = params[k]
                 if isinstance(v, ParameterAlias):
                     params[k] = params[v.alias_to]
-            alias_count_new = sum(isinstance(v, ParameterAlias) for v in params.values())
+            alias_count_new = sum(
+                isinstance(v, ParameterAlias) for v in params.values()
+            )
             if alias_count == alias_count_new:
                 raise ValueError(f"ParameterAlias cycle detected\n{params}")
 

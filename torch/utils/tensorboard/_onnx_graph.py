@@ -8,6 +8,7 @@ from tensorboard.compat.proto.tensor_shape_pb2 import TensorShapeProto
 
 def load_onnx_graph(fname):
     import onnx
+
     m = onnx.load(fname)  # type: ignore[attr-defined]
     g = m.graph
     return parse(g)
@@ -41,7 +42,9 @@ def parse(graph):
         )
 
     for node in graph.node:
-        _attr = [" = ".join([str(f[1]) for f in s.ListFields()]) for s in node.attribute]
+        _attr = [
+            " = ".join([str(f[1]) for f in s.ListFields()]) for s in node.attribute
+        ]
         attr = ", ".join(_attr).encode(encoding="utf_8")
         print(node.output[0])
         nodes.append(

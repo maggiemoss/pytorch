@@ -30,6 +30,7 @@ redirect_imports = (
     "test.typinganndata.ann_module",
 )
 
+
 class RedirectImportFinder(importlib.abc.MetaPathFinder):
     def find_spec(self, fullname, path, target=None):
         # Check if the import is the problematic one
@@ -45,6 +46,7 @@ class RedirectImportFinder(importlib.abc.MetaPathFinder):
             except ImportError:
                 return None
         return None
+
 
 # Add the custom finder to sys.meta_path
 sys.meta_path.insert(0, RedirectImportFinder())
@@ -77,7 +79,7 @@ class UserListTest(list_tests.CommonTest):
         l = [0, 1, 2, 3, 4]
         u = UserList(l)
         self.assertIsInstance(u[:], u.__class__)
-        self.assertEqual(u[:],u)
+        self.assertEqual(u[:], u)
 
     def test_add_specials(self):
         u = UserList("spam")
@@ -111,10 +113,12 @@ class UserListTest(list_tests.CommonTest):
     def test_getitemoverwriteiter(self):
         # Verify that __getitem__ overrides *are* recognized by __iter__
         with torch._dynamo.error_on_graph_break(False):
+
             class T(self.type2test):
                 def __getitem__(self, key):
-                    return str(key) + '!!!'
-        self.assertEqual(next(iter(T((1,2)))), "0!!!")
+                    return str(key) + "!!!"
+
+        self.assertEqual(next(iter(T((1, 2)))), "0!!!")
 
     def test_userlist_copy(self):
         u = self.type2test([6, 8, 1, 9, 1])
@@ -127,6 +131,7 @@ class UserListTest(list_tests.CommonTest):
     # test_repr_deep = support.infinite_recursion(25)(
     #     list_tests.CommonTest.test_repr_deep,
     # )
+
 
 if __name__ == "__main__":
     run_tests()

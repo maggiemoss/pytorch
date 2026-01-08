@@ -50,7 +50,9 @@ class FileWriter:
     training.
     """
 
-    def __init__(self, log_dir, max_queue=10, flush_secs=120, filename_suffix="") -> None:
+    def __init__(
+        self, log_dir, max_queue=10, flush_secs=120, filename_suffix=""
+    ) -> None:
         """Create a `FileWriter` and an event file.
 
         On construction the writer creates a new event file in `log_dir`.
@@ -321,10 +323,13 @@ class SummaryWriter:
         Examples::
 
             from torch.utils.tensorboard import SummaryWriter
+
             with SummaryWriter() as w:
                 for i in range(5):
-                    w.add_hparams({'lr': 0.1*i, 'bsize': i},
-                                  {'hparam/accuracy': 10*i, 'hparam/loss': 10*i})
+                    w.add_hparams(
+                        {"lr": 0.1 * i, "bsize": i},
+                        {"hparam/accuracy": 10 * i, "hparam/loss": 10 * i},
+                    )
 
         Expected result:
 
@@ -369,10 +374,11 @@ class SummaryWriter:
         Examples::
 
             from torch.utils.tensorboard import SummaryWriter
+
             writer = SummaryWriter()
             x = range(100)
             for i in x:
-                writer.add_scalar('y=2x', i * 2, i)
+                writer.add_scalar("y=2x", i * 2, i)
             writer.close()
 
         Expected result:
@@ -388,7 +394,9 @@ class SummaryWriter:
         )
         self._get_file_writer().add_summary(summary, global_step, walltime)
 
-    def add_scalars(self, main_tag, tag_scalar_dict, global_step=None, walltime=None) -> None:
+    def add_scalars(
+        self, main_tag, tag_scalar_dict, global_step=None, walltime=None
+    ) -> None:
         """Add many scalar data to summary.
 
         Args:
@@ -401,12 +409,19 @@ class SummaryWriter:
         Examples::
 
             from torch.utils.tensorboard import SummaryWriter
+
             writer = SummaryWriter()
             r = 5
             for i in range(100):
-                writer.add_scalars('run_14h', {'xsinx':i*np.sin(i/r),
-                                                'xcosx':i*np.cos(i/r),
-                                                'tanx': np.tan(i/r)}, i)
+                writer.add_scalars(
+                    "run_14h",
+                    {
+                        "xsinx": i * np.sin(i / r),
+                        "xcosx": i * np.cos(i / r),
+                        "tanx": np.tan(i / r),
+                    },
+                    i,
+                )
             writer.close()
             # This call adds three values to the same scalar plot with the tag
             # 'run_14h' in TensorBoard's scalar section.
@@ -449,9 +464,10 @@ class SummaryWriter:
         Examples::
 
             from torch.utils.tensorboard import SummaryWriter
+
             writer = SummaryWriter()
-            x = torch.tensor([1,2,3])
-            writer.add_scalar('x', x)
+            x = torch.tensor([1, 2, 3])
+            writer.add_scalar("x", x)
             writer.close()
 
         Expected result:
@@ -489,10 +505,11 @@ class SummaryWriter:
 
             from torch.utils.tensorboard import SummaryWriter
             import numpy as np
+
             writer = SummaryWriter()
             for i in range(10):
                 x = np.random.random(1000)
-                writer.add_histogram('distribution centers', x + i, i)
+                writer.add_histogram("distribution centers", x + i, i)
             writer.close()
 
         Expected result:
@@ -542,18 +559,19 @@ class SummaryWriter:
 
             from torch.utils.tensorboard import SummaryWriter
             import numpy as np
+
             writer = SummaryWriter()
             dummy_data = []
             for idx, value in enumerate(range(50)):
                 dummy_data += [idx + 0.001] * value
 
-            bins = list(range(50+2))
+            bins = list(range(50 + 2))
             bins = np.array(bins)
             values = np.array(dummy_data).astype(float).reshape(-1)
             counts, limits = np.histogram(values, bins=bins)
             sum_sq = values.dot(values)
             writer.add_histogram_raw(
-                tag='histogram_with_raw_data',
+                tag="histogram_with_raw_data",
                 min=values.min(),
                 max=values.max(),
                 num=len(values),
@@ -561,7 +579,8 @@ class SummaryWriter:
                 sum_squares=sum_sq,
                 bucket_limits=limits[1:].tolist(),
                 bucket_counts=counts.tolist(),
-                global_step=0)
+                global_step=0,
+            )
             writer.close()
 
         Expected result:
@@ -608,6 +627,7 @@ class SummaryWriter:
 
             from torch.utils.tensorboard import SummaryWriter
             import numpy as np
+
             img = np.zeros((3, 100, 100))
             img[0] = np.arange(0, 10000).reshape(100, 100) / 10000
             img[1] = 1 - np.arange(0, 10000).reshape(100, 100) / 10000
@@ -617,10 +637,10 @@ class SummaryWriter:
             img_HWC[:, :, 1] = 1 - np.arange(0, 10000).reshape(100, 100) / 10000
 
             writer = SummaryWriter()
-            writer.add_image('my_image', img, 0)
+            writer.add_image("my_image", img, 0)
 
             # If you have non-default dimension setting, set the dataformats argument.
-            writer.add_image('my_image_HWC', img_HWC, 0, dataformats='HWC')
+            writer.add_image("my_image_HWC", img_HWC, 0, dataformats="HWC")
             writer.close()
 
         Expected result:
@@ -661,10 +681,12 @@ class SummaryWriter:
             img_batch = np.zeros((16, 3, 100, 100))
             for i in range(16):
                 img_batch[i, 0] = np.arange(0, 10000).reshape(100, 100) / 10000 / 16 * i
-                img_batch[i, 1] = (1 - np.arange(0, 10000).reshape(100, 100) / 10000) / 16 * i
+                img_batch[i, 1] = (
+                    (1 - np.arange(0, 10000).reshape(100, 100) / 10000) / 16 * i
+                )
 
             writer = SummaryWriter()
-            writer.add_images('my_image_batch', img_batch, 0)
+            writer.add_images("my_image_batch", img_batch, 0)
             writer.close()
 
         Expected result:
@@ -767,7 +789,9 @@ class SummaryWriter:
                 dataformats="CHW",
             )
 
-    def add_video(self, tag, vid_tensor, global_step=None, fps=4, walltime=None) -> None:
+    def add_video(
+        self, tag, vid_tensor, global_step=None, fps=4, walltime=None
+    ) -> None:
         """Add video data to summary.
 
         Note that this requires the ``moviepy`` package.
@@ -818,8 +842,8 @@ class SummaryWriter:
               seconds after epoch of event
         Examples::
 
-            writer.add_text('lstm', 'This is an lstm', 0)
-            writer.add_text('rnn', 'This is an rnn', 10)
+            writer.add_text("lstm", "This is an lstm", 0)
+            writer.add_text("rnn", "This is an rnn", 10)
         """
         torch._C._log_api_usage_once("tensorboard.logging.add_text")
         self._get_file_writer().add_summary(
@@ -887,19 +911,22 @@ class SummaryWriter:
 
             import keyword
             import torch
+
             meta = []
-            while len(meta)<100:
-                meta = meta+keyword.kwlist # get some strings
+            while len(meta) < 100:
+                meta = meta + keyword.kwlist  # get some strings
             meta = meta[:100]
 
             for i, v in enumerate(meta):
-                meta[i] = v+str(i)
+                meta[i] = v + str(i)
 
             label_img = torch.rand(100, 3, 10, 32)
             for i in range(100):
-                label_img[i]*=i/100.0
+                label_img[i] *= i / 100.0
 
-            writer.add_embedding(torch.randn(100, 5), metadata=meta, label_img=label_img)
+            writer.add_embedding(
+                torch.randn(100, 5), metadata=meta, label_img=label_img
+            )
             writer.add_embedding(torch.randn(100, 5), label_img=label_img)
             writer.add_embedding(torch.randn(100, 5), metadata=meta)
 
@@ -933,9 +960,7 @@ class SummaryWriter:
             fs.makedirs(save_path)
 
         if metadata is not None:
-            if mat.shape[0] != len(
-                metadata
-            ):
+            if mat.shape[0] != len(metadata):
                 raise AssertionError("#labels should equal with #data points")
             make_tsv(metadata, save_path, metadata_header=metadata_header)
 
@@ -945,7 +970,9 @@ class SummaryWriter:
             make_sprite(label_img, save_path)
 
         if mat.ndim != 2:
-            raise AssertionError("mat should be 2D, where mat.size(0) is the number of data points")
+            raise AssertionError(
+                "mat should be 2D, where mat.size(0) is the number of data points"
+            )
         make_mat(mat, save_path)
 
         # Filesystem doesn't necessarily have append semantics, so we store an
@@ -957,7 +984,6 @@ class SummaryWriter:
             metadata, label_img, subdir, global_step, tag
         )
         self._projector_config.embeddings.extend([embedding_info])
-
 
         from google.protobuf import text_format
 
@@ -998,10 +1024,11 @@ class SummaryWriter:
 
             from torch.utils.tensorboard import SummaryWriter
             import numpy as np
+
             labels = np.random.randint(2, size=100)  # binary label
             predictions = np.random.rand(100)
             writer = SummaryWriter()
-            writer.add_pr_curve('pr_curve', labels, predictions, 0)
+            writer.add_pr_curve("pr_curve", labels, predictions, 0)
             writer.close()
 
         """
@@ -1070,7 +1097,7 @@ class SummaryWriter:
 
         Examples::
 
-            writer.add_custom_scalars_multilinechart(['twse/0050', 'twse/2330'])
+            writer.add_custom_scalars_multilinechart(["twse/0050", "twse/2330"])
         """
         torch._C._log_api_usage_once(
             "tensorboard.logging.add_custom_scalars_multilinechart"
@@ -1091,7 +1118,9 @@ class SummaryWriter:
 
         Examples::
 
-            writer.add_custom_scalars_marginchart(['twse/0050', 'twse/2330', 'twse/2006'])
+            writer.add_custom_scalars_marginchart(
+                ["twse/0050", "twse/2330", "twse/2006"]
+            )
         """
         torch._C._log_api_usage_once(
             "tensorboard.logging.add_custom_scalars_marginchart"
@@ -1116,9 +1145,13 @@ class SummaryWriter:
 
         Examples::
 
-            layout = {'Taiwan':{'twse':['Multiline',['twse/0050', 'twse/2330']]},
-                         'USA':{ 'dow':['Margin',   ['dow/aaa', 'dow/bbb', 'dow/ccc']],
-                              'nasdaq':['Margin',   ['nasdaq/aaa', 'nasdaq/bbb', 'nasdaq/ccc']]}}
+            layout = {
+                "Taiwan": {"twse": ["Multiline", ["twse/0050", "twse/2330"]]},
+                "USA": {
+                    "dow": ["Margin", ["dow/aaa", "dow/bbb", "dow/ccc"]],
+                    "nasdaq": ["Margin", ["nasdaq/aaa", "nasdaq/bbb", "nasdaq/ccc"]],
+                },
+            }
 
             writer.add_custom_scalars(layout)
         """
@@ -1163,27 +1196,42 @@ class SummaryWriter:
         Examples::
 
             from torch.utils.tensorboard import SummaryWriter
-            vertices_tensor = torch.as_tensor([
-                [1, 1, 1],
-                [-1, -1, 1],
-                [1, -1, -1],
-                [-1, 1, -1],
-            ], dtype=torch.float).unsqueeze(0)
-            colors_tensor = torch.as_tensor([
-                [255, 0, 0],
-                [0, 255, 0],
-                [0, 0, 255],
-                [255, 0, 255],
-            ], dtype=torch.int).unsqueeze(0)
-            faces_tensor = torch.as_tensor([
-                [0, 2, 3],
-                [0, 3, 1],
-                [0, 1, 2],
-                [1, 3, 2],
-            ], dtype=torch.int).unsqueeze(0)
+
+            vertices_tensor = torch.as_tensor(
+                [
+                    [1, 1, 1],
+                    [-1, -1, 1],
+                    [1, -1, -1],
+                    [-1, 1, -1],
+                ],
+                dtype=torch.float,
+            ).unsqueeze(0)
+            colors_tensor = torch.as_tensor(
+                [
+                    [255, 0, 0],
+                    [0, 255, 0],
+                    [0, 0, 255],
+                    [255, 0, 255],
+                ],
+                dtype=torch.int,
+            ).unsqueeze(0)
+            faces_tensor = torch.as_tensor(
+                [
+                    [0, 2, 3],
+                    [0, 3, 1],
+                    [0, 1, 2],
+                    [1, 3, 2],
+                ],
+                dtype=torch.int,
+            ).unsqueeze(0)
 
             writer = SummaryWriter()
-            writer.add_mesh('my_mesh', vertices=vertices_tensor, colors=colors_tensor, faces=faces_tensor)
+            writer.add_mesh(
+                "my_mesh",
+                vertices=vertices_tensor,
+                colors=colors_tensor,
+                faces=faces_tensor,
+            )
 
             writer.close()
         """

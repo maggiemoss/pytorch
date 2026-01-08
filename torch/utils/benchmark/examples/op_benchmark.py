@@ -32,7 +32,9 @@ def run(n, stmt, fuzzer_cls) -> None:
     float_iter = fuzzer_cls(seed=0, dtype=torch.float32).take(n)
     int_iter = fuzzer_cls(seed=0, dtype=torch.int32).take(n)
     raw_results = []
-    for i, (float_values, int_values) in enumerate(zip(float_iter, int_iter, strict=True)):
+    for i, (float_values, int_values) in enumerate(
+        zip(float_iter, int_iter, strict=True)
+    ):
         float_tensors, float_tensor_params, float_params = float_values
         int_tensors, int_tensor_params, int_params = int_values
 
@@ -51,14 +53,20 @@ def run(n, stmt, fuzzer_cls) -> None:
 
         descriptions = []
         for name in float_tensors:
-            shape_str = "(" + ", ".join([
-                f"2 ** {int(np.log2(i))}"
-                if 2 ** int(np.log2(i)) == i and i > 1
-                else str(i)
-                for i in float_tensors[name].shape
-            ]) + ")"
+            shape_str = (
+                "("
+                + ", ".join(
+                    [
+                        f"2 ** {int(np.log2(i))}"
+                        if 2 ** int(np.log2(i)) == i and i > 1
+                        else str(i)
+                        for i in float_tensors[name].shape
+                    ]
+                )
+                + ")"
+            )
             order = float_tensor_params[name]["order"]
-            order_str = ("" if all(order == np.arange(len(order))) else str(tuple(order)))
+            order_str = "" if all(order == np.arange(len(order))) else str(tuple(order))
             steps = float_tensor_params[name]["steps"]
             steps_str = str(steps) if sum(steps) > len(steps) else ""
             descriptions.append((name, shape_str, order_str, steps_str))
@@ -87,9 +95,13 @@ def run(n, stmt, fuzzer_cls) -> None:
     print(f"          steps\n{'-' * 100}")
     for results, spacer in [(parsed_results[:10], "..."), (parsed_results[-10:], "")]:
         for t_float, t_int, rel_diff, descriptions in results:
-            time_str = [f"{rel_diff * 100:>4.1f}%    {'int' if t_int < t_float else 'float':<20}"]
+            time_str = [
+                f"{rel_diff * 100:>4.1f}%    {'int' if t_int < t_float else 'float':<20}"
+            ]
             time_str.extend(["".ljust(len(time_str[0])) for _ in descriptions[:-1]])
-            for t_str, (name, shape, order, steps) in zip(time_str, descriptions, strict=True):
+            for t_str, (name, shape, order, steps) in zip(
+                time_str, descriptions, strict=True
+            ):
                 name = f"{name}:".ljust(name_len + 1)
                 shape = shape.ljust(shape_len + 10)
                 order = order.ljust(order_len)

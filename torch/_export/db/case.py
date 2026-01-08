@@ -47,26 +47,21 @@ ArgsType = tuple[Any, ...]
 
 def check_inputs_type(args, kwargs):
     if not isinstance(args, tuple):
-        raise ValueError(
-            f"Expecting args type to be a tuple, got: {type(args)}"
-        )
+        raise ValueError(f"Expecting args type to be a tuple, got: {type(args)}")
     if not isinstance(kwargs, dict):
-        raise ValueError(
-            f"Expecting kwargs type to be a dict, got: {type(kwargs)}"
-        )
+        raise ValueError(f"Expecting kwargs type to be a dict, got: {type(kwargs)}")
     for key in kwargs:
         if not isinstance(key, str):
-            raise ValueError(
-                f"Expecting kwargs keys to be a string, got: {type(key)}"
-            )
+            raise ValueError(f"Expecting kwargs keys to be a string, got: {type(key)}")
+
 
 def _validate_tag(tag: str):
     parts = tag.split(".")
     t = _TAGS
     for part in parts:
-        assert set(part) <= set(
-            string.ascii_lowercase + "-"
-        ), f"Tag contains invalid characters: {part}"
+        assert set(part) <= set(string.ascii_lowercase + "-"), (
+            f"Tag contains invalid characters: {part}"
+        )
         if part in t:
             t = t[part]
         else:
@@ -128,9 +123,9 @@ def _make_export_case(m, name, configs):
 
     if "description" not in configs:
         # Fallback to docstring if description is missing.
-        assert (
-            m.__doc__ is not None
-        ), f"Could not find description or docstring for export case: {m}"
+        assert m.__doc__ is not None, (
+            f"Could not find description or docstring for export case: {m}"
+        )
         configs = {**configs, "description": m.__doc__}
     # pyrefly: ignore [bad-argument-type]
     return ExportCase(**{**configs, "model": m, "name": name})

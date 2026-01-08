@@ -6,7 +6,12 @@ import time
 import torch
 import unittest
 from torch.futures import Future
-from torch.testing._internal.common_utils import IS_WINDOWS, TestCase, TemporaryFileName, run_tests
+from torch.testing._internal.common_utils import (
+    IS_WINDOWS,
+    TestCase,
+    TemporaryFileName,
+    run_tests,
+)
 from typing import TypeVar
 
 T = TypeVar("T")
@@ -59,7 +64,7 @@ class TestFuture(TestCase):
                 f.wait()
 
         f = Future[T]()  # type: ignore[valid-type]
-        t = threading.Thread(target=wait_future, args=(f, ))
+        t = threading.Thread(target=wait_future, args=(f,))
         t.start()
         # pyrefly: ignore [bad-argument-type]
         f.set_exception(value_error)
@@ -74,7 +79,7 @@ class TestFuture(TestCase):
                 fut.wait()
 
         f = Future[T]()  # type: ignore[valid-type]
-        t = threading.Thread(target=then_future, args=(f, ))
+        t = threading.Thread(target=then_future, args=(f,))
         t.start()
         # pyrefly: ignore [bad-argument-type]
         f.set_exception(value_error)
@@ -110,7 +115,6 @@ class TestFuture(TestCase):
         self.assertEqual(f.wait(), torch.ones(2, 2))
 
     def test_wait_multi_thread(self) -> None:
-
         def slow_set_future(fut, value):
             time.sleep(0.5)
             fut.set_result(value)
@@ -127,8 +131,7 @@ class TestFuture(TestCase):
         fut = Future[int]()
         fut.set_result(1)
         with self.assertRaisesRegex(
-            RuntimeError,
-            "Future can only be marked completed once"
+            RuntimeError, "Future can only be marked completed once"
         ):
             fut.set_result(1)
 
@@ -170,21 +173,18 @@ class TestFuture(TestCase):
             then_fut.wait()
 
     def test_then_wrong_arg(self):
-
         def wrong_arg(tensor):
             return tensor + 1
 
         self._test_then_error(wrong_arg, "unsupported operand type.*Future.*int")
 
     def test_then_no_arg(self):
-
         def no_arg():
             return True
 
         self._test_then_error(no_arg, "takes 0 positional arguments but 1 was given")
 
     def test_then_raise(self):
-
         def raise_value_error(fut):
             raise ValueError("Expected error")
 
@@ -237,14 +237,12 @@ class TestFuture(TestCase):
         self.assertEqual(5, fut.wait())
 
     def test_add_done_callback_error_is_ignored(self):
-
         def raise_value_error(fut):
             raise ValueError("Expected error")
 
         self._test_add_done_callback_error_ignored(raise_value_error)
 
     def test_add_done_callback_no_arg_error_is_ignored(self):
-
         def no_arg():
             return True
 
@@ -329,6 +327,7 @@ class TestFuture(TestCase):
         # Version with an exception
         def raise_in_fut(fut):
             raise ValueError("Expected error")
+
         fut3 = fut1.then(raise_in_fut)
         with self.assertRaisesRegex(RuntimeError, "Expected error"):
             torch.futures.wait_all([fut3, fut2])
@@ -340,7 +339,13 @@ class TestFuture(TestCase):
         with self.assertRaisesRegex(RuntimeError, "Future can't be None"):
             torch.futures.wait_all((None,))  # type: ignore[arg-type]
         with self.assertRaisesRegex(RuntimeError, "Future can't be None"):
-            torch.futures.collect_all((fut1, None,))  # type: ignore[arg-type]
+            torch.futures.collect_all(
+                (
+                    fut1,
+                    None,
+                )
+            )  # type: ignore[arg-type]
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     run_tests()

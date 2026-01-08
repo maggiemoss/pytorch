@@ -4,6 +4,7 @@ import torch
 from torch.utils.benchmark import FuzzedTensor
 import math
 
+
 class FuzzedSparseTensor(FuzzedTensor):
     def __init__(
         self,
@@ -17,7 +18,7 @@ class FuzzedSparseTensor(FuzzedTensor):
         density: str | None = None,
         coalesced: str | None = None,
         dtype=torch.float32,
-        cuda=False
+        cuda=False,
     ) -> None:
         """
         Args:
@@ -48,8 +49,15 @@ class FuzzedSparseTensor(FuzzedTensor):
             cuda:
                 Whether to place the Tensor on a GPU.
         """
-        super().__init__(name=name, size=size, min_elements=min_elements,
-                         max_elements=max_elements, dim_parameter=dim_parameter, dtype=dtype, cuda=cuda)
+        super().__init__(
+            name=name,
+            size=size,
+            min_elements=min_elements,
+            max_elements=max_elements,
+            dim_parameter=dim_parameter,
+            dtype=dtype,
+            cuda=cuda,
+        )
         self._density = density
         self._coalesced = coalesced
         self._sparse_dim = sparse_dim
@@ -70,7 +78,7 @@ class FuzzedSparseTensor(FuzzedTensor):
         if isinstance(size, Number):
             size = [size] * sparse_dim
         if all(size[d] <= 0 for d in range(sparse_dim)) and nnz != 0:
-            raise AssertionError('invalid arguments')
+            raise AssertionError("invalid arguments")
         v_size = [nnz] + list(size[sparse_dim:])
         if dtype.is_floating_point:
             v = torch.rand(size=v_size, dtype=dtype, device="cpu")
@@ -93,16 +101,18 @@ class FuzzedSparseTensor(FuzzedTensor):
     def _make_tensor(self, params, state):
         # pyrefly: ignore [missing-attribute]
         size, _, _ = self._get_size_and_steps(params)
-        density = params['density']
+        density = params["density"]
         nnz = math.ceil(sum(size) * density)
         if nnz > sum(size):
-            raise AssertionError('nnz cannot exceed total number of elements')
+            raise AssertionError("nnz cannot exceed total number of elements")
 
-        is_coalesced = params['coalesced']
-        sparse_dim = params['sparse_dim'] if self._sparse_dim else len(size)
+        is_coalesced = params["coalesced"]
+        sparse_dim = params["sparse_dim"] if self._sparse_dim else len(size)
         sparse_dim = min(sparse_dim, len(size))
         # pyrefly: ignore [missing-attribute]
-        tensor = self.sparse_tensor_constructor(size, self._dtype, sparse_dim, nnz, is_coalesced)
+        tensor = self.sparse_tensor_constructor(
+            size, self._dtype, sparse_dim, nnz, is_coalesced
+        )
 
         # pyrefly: ignore [missing-attribute]
         if self._cuda:

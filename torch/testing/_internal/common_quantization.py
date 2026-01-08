@@ -1147,9 +1147,9 @@ class QuantizationTestCase(TestCase):
                                         + f"have a shape mismatch at idx {idx}.",
                                     )
                                 else:
-                                    assert isinstance(
-                                        values_0, tuple
-                                    ), f"unhandled type {type(values_0)}"
+                                    assert isinstance(values_0, tuple), (
+                                        f"unhandled type {type(values_0)}"
+                                    )
                                     assert len(values_0) == 2
                                     assert len(values_0[1]) == 2
                                     assert values_0[0].shape == values_1[0].shape

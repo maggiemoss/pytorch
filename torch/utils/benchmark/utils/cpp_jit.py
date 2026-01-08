@@ -1,4 +1,5 @@
 """JIT C++ strings into executables."""
+
 import atexit
 import os
 import re
@@ -30,6 +31,7 @@ SOURCE_ROOT = os.path.split(os.path.abspath(__file__))[0]
 # `setup` and `stmt` do not change, so we can reuse the executable from the
 # first pass through the loop.
 _BUILD_ROOT: str | None = None
+
 
 def _get_build_root() -> str:
     global _BUILD_ROOT
@@ -90,17 +92,17 @@ if CONDA_PREFIX is not None:
 
 
 COMPAT_CALLGRIND_BINDINGS: CallgrindModuleType | None = None
+
+
 def get_compat_bindings() -> CallgrindModuleType:
     with LOCK:
         global COMPAT_CALLGRIND_BINDINGS
         if COMPAT_CALLGRIND_BINDINGS is None:
             COMPAT_CALLGRIND_BINDINGS = cpp_extension.load(
                 name="callgrind_bindings",
-                sources=[os.path.join(
-                    SOURCE_ROOT,
-                    "valgrind_wrapper",
-                    "compat_bindings.cpp"
-                )],
+                sources=[
+                    os.path.join(SOURCE_ROOT, "valgrind_wrapper", "compat_bindings.cpp")
+                ],
                 extra_cflags=CXX_FLAGS,
                 extra_include_paths=EXTRA_INCLUDE_PATHS,
             )
@@ -108,25 +110,18 @@ def get_compat_bindings() -> CallgrindModuleType:
 
 
 def _compile_template(
-    *,
-    stmt: str,
-    setup: str,
-    global_setup: str,
-    src: str,
-    is_standalone: bool
+    *, stmt: str, setup: str, global_setup: str, src: str, is_standalone: bool
 ) -> Any:
     for before, after, indentation in (
         ("// GLOBAL_SETUP_TEMPLATE_LOCATION", global_setup, 0),
         ("// SETUP_TEMPLATE_LOCATION", setup, 4),
-        ("// STMT_TEMPLATE_LOCATION", stmt, 8)
+        ("// STMT_TEMPLATE_LOCATION", stmt, 8),
     ):
         # C++ doesn't care about indentation so this code isn't load
         # bearing the way it is with Python, but this makes the source
         # look nicer if a human has to look at it.
         src = re.sub(
-            before,
-            textwrap.indent(after, " " * indentation)[indentation:],
-            src
+            before, textwrap.indent(after, " " * indentation)[indentation:], src
         )
 
     # We want to isolate different Timers. However `cpp_extension` will
@@ -153,23 +148,31 @@ def _compile_template(
     )
 
 
-def compile_timeit_template(*, stmt: str, setup: str, global_setup: str) -> TimeitModuleType:
+def compile_timeit_template(
+    *, stmt: str, setup: str, global_setup: str
+) -> TimeitModuleType:
     template_path: str = os.path.join(SOURCE_ROOT, "timeit_template.cpp")
     with open(template_path) as f:
         src: str = f.read()
 
-    module = _compile_template(stmt=stmt, setup=setup, global_setup=global_setup, src=src, is_standalone=False)
+    module = _compile_template(
+        stmt=stmt, setup=setup, global_setup=global_setup, src=src, is_standalone=False
+    )
     if not isinstance(module, TimeitModuleType):
         raise AssertionError("compiled module is not a TimeitModuleType")
     return module
 
 
 def compile_callgrind_template(*, stmt: str, setup: str, global_setup: str) -> str:
-    template_path: str = os.path.join(SOURCE_ROOT, "valgrind_wrapper", "timer_callgrind_template.cpp")
+    template_path: str = os.path.join(
+        SOURCE_ROOT, "valgrind_wrapper", "timer_callgrind_template.cpp"
+    )
     with open(template_path) as f:
         src: str = f.read()
 
-    target = _compile_template(stmt=stmt, setup=setup, global_setup=global_setup, src=src, is_standalone=True)
+    target = _compile_template(
+        stmt=stmt, setup=setup, global_setup=global_setup, src=src, is_standalone=True
+    )
     if not isinstance(target, str):
         raise AssertionError("compiled target path is not a string")
     return target
