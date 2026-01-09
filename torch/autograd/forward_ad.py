@@ -3,7 +3,6 @@ import os
 from typing import Any, NamedTuple, Optional
 
 import torch
-
 from .grad_mode import _DecoratorContextManager
 
 
@@ -63,7 +62,9 @@ def exit_dual_level(*, level=None):
 
 def _maybe_load_decompositions():
     if os.environ.get("PYTORCH_JIT", "1") == "1" and __debug__:
-        from torch._decomp import decompositions_for_jvp  # noqa: F401
+        from torch._decomp import (
+            decompositions_for_jvp,  # noqa: F401
+        )
 
 
 def make_dual(tensor, tangent, *, level=None):

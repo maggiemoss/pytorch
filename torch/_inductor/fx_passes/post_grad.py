@@ -16,12 +16,13 @@ from torch import fx
 from torch._decomp import register_decomposition
 from torch._dynamo.utils import counters
 from torch._inductor import comms
-from torch._inductor.virtualized import ops  # noqa: F401
+from torch._inductor.virtualized import (
+    ops,  # noqa: F401
+)
 from torch._logging import trace_structured
 from torch._prims_common import is_boolean_dtype, is_expandable_to, is_integer_dtype
 from torch.fx.experimental.symbolic_shapes import statically_known_true, sym_eq
 from torch.utils._ordered_set import OrderedSet
-
 from .. import config, ir, pattern_matcher  # noqa: F401
 from ..codegen.common import custom_backend_passes
 from ..comms import remove_fsdp2_unsharded_param_graph_input_usage
@@ -720,7 +721,9 @@ def decompose_scan_to_while_loop(gm: torch.fx.GraphModule):
 @init_once_fakemode
 def lazy_init():
     if torch._C._has_mkldnn:
-        from . import decompose_mem_bound_mm  # noqa: F401
+        from . import (
+            decompose_mem_bound_mm,  # noqa: F401
+        )
         from .mkldnn_fusion import _mkldnn_fusion_init
 
         _mkldnn_fusion_init()

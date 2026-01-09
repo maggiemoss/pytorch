@@ -3,7 +3,9 @@
 import os
 
 import torch
-from torch.testing import make_tensor  # noqa: F401
+from torch.testing import (
+    make_tensor,  # noqa: F401
+)
 from torch.testing._internal.opinfo.core import (  # noqa: F401
     BinaryUfuncInfo,
     ErrorInput,

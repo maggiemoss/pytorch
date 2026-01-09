@@ -27,7 +27,9 @@ if TYPE_CHECKING:
 try:
     from yaml import CSafeLoader as Loader
 except ImportError:
-    from yaml import SafeLoader as Loader  # type: ignore[assignment, misc]
+    from yaml import (
+        SafeLoader as Loader,  # type: ignore[assignment, misc]
+    )
 
 
 class LintSeverity(str, Enum):

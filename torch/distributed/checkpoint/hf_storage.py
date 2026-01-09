@@ -240,7 +240,9 @@ class HuggingFaceStorageReader(FileSystemReader):
         result_queue: queue.Queue,
         planner: LoadPlanner,
     ) -> None:
-        from safetensors import safe_open  # type: ignore[import]
+        from safetensors import (
+            safe_open,  # type: ignore[import]
+        )
 
         try:
             while True:
@@ -253,7 +255,9 @@ class HuggingFaceStorageReader(FileSystemReader):
             pass
 
     def read_data(self, plan: LoadPlan, planner: LoadPlanner) -> Future[None]:
-        from safetensors import safe_open  # type: ignore[import]
+        from safetensors import (
+            safe_open,  # type: ignore[import]
+        )
 
         per_file: dict[str, list[ReadItem]] = {}
 
@@ -311,8 +315,12 @@ class HuggingFaceStorageReader(FileSystemReader):
 
     # pyrefly: ignore [bad-override]
     def read_metadata(self) -> Metadata:
-        from safetensors import safe_open  # type: ignore[import]
-        from safetensors.torch import _getdtype  # type: ignore[import]
+        from safetensors import (
+            safe_open,  # type: ignore[import]
+        )
+        from safetensors.torch import (
+            _getdtype,  # type: ignore[import]
+        )
 
         state_dict_metadata: dict[str, TensorStorageMetadata] = {}
         storage_data: dict[MetadataIndex, _HFStorageInfo] = {}

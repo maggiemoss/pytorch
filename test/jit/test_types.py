@@ -10,7 +10,9 @@ from typing import Dict, Iterator, List, Optional, Tuple
 
 import torch
 import torch.testing._internal.jit_utils
-from jit.test_module_interface import TestModuleInterface  # noqa: F401
+from jit.test_module_interface import (
+    TestModuleInterface,  # noqa: F401
+)
 from torch.testing import FileCheck
 from torch.testing._internal.common_utils import raise_on_run_directly
 from torch.testing._internal.jit_utils import JitTestCase

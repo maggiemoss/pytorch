@@ -9,7 +9,6 @@ import torch
 from torch.distributed.checkpoint._hf_utils import _metadata_fn
 from torch.distributed.checkpoint.metadata import TensorStorageMetadata
 from torch.distributed.checkpoint.planner import LoadPlanner, ReadItem
-
 from .hf_storage import HuggingFaceStorageReader
 
 
@@ -464,7 +463,9 @@ class QuantizedHuggingFaceStorageReader(HuggingFaceStorageReader):
                 scale_inv = safetensor_file.get_tensor(scale_fqn)
             else:
                 # Scale tensor is in a different file, need to open it
-                from safetensors import safe_open  # type: ignore[import]
+                from safetensors import (
+                    safe_open,  # type: ignore[import]
+                )
 
                 scale_file_path = Path(self.path) / scale_file_name
                 with safe_open(

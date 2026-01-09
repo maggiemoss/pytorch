@@ -67,7 +67,9 @@ if HAS_GPU:
 
     def _triton_get_ast_equal_to_str(params):
         try:
-            from triton.backends.compiler import AttrsDescriptor  # noqa: F401
+            from triton.backends.compiler import (
+                AttrsDescriptor,  # noqa: F401
+            )
 
             return f"'tt.equal_to': {params}"
         except ImportError:

@@ -15,7 +15,9 @@ from pathlib import Path
 from typing import Any
 from typing_extensions import deprecated
 from urllib.error import HTTPError, URLError
-from urllib.parse import urlparse  # noqa: F401
+from urllib.parse import (
+    urlparse,  # noqa: F401
+)
 from urllib.request import Request, urlopen
 
 import torch
@@ -61,7 +63,9 @@ class _Faketqdm:  # type: ignore[no-redef]
 
 
 try:
-    from tqdm import tqdm  # If tqdm is installed use it, otherwise use the fake wrapper
+    from tqdm import (
+        tqdm,  # If tqdm is installed use it, otherwise use the fake wrapper
+    )
 except ImportError:
     tqdm = _Faketqdm
 

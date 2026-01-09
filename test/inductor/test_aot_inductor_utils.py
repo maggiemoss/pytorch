@@ -80,7 +80,9 @@ class AOTIRunnerUtil:
     @staticmethod
     def legacy_load_runner(device, so_path: str) -> "AOTIModelContainerRunner":
         if IS_FBCODE:
-            from .fb import test_aot_inductor_model_runner_pybind  # @manual
+            from .fb import (
+                test_aot_inductor_model_runner_pybind,  # @manual
+            )
 
             with tempfile.TemporaryDirectory() as temp_dir:
                 # copy *.so file to a unique path just before loading

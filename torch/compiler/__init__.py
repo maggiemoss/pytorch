@@ -7,7 +7,6 @@ from typing_extensions import ParamSpec
 
 import torch
 from torch._higher_order_ops.invoke_subgraph import NestedCompileRegionOptions
-
 from . import config
 
 
@@ -364,7 +363,9 @@ def set_enable_guard_collectives(enabled: bool):
 
     Returns the previous setting of enabled.
     """
-    from torch._C._dynamo.eval_frame import set_guard_complete_hook  # noqa: F401
+    from torch._C._dynamo.eval_frame import (
+        set_guard_complete_hook,  # noqa: F401
+    )
     from torch._dynamo.eval_frame import guard_collectives_hook
 
     if enabled:

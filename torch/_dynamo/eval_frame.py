@@ -91,7 +91,6 @@ from torch.fx.experimental.symbolic_shapes import (
     StatelessSymbolicContext,
 )
 from torch.fx.graph import _PyTreeCodeGen, _PyTreeInfo
-
 from . import config, convert_frame, distributed, external_utils, trace_rules, utils
 from .backends.registry import CompilerFn, lookup_backend
 from .code_context import code_context
@@ -120,7 +119,6 @@ if TYPE_CHECKING:
     from torch._dynamo.repro.after_dynamo import WrapBackendDebug
     from torch._subclasses import fake_tensor
     from torch.fx.node import Argument, Node, Target
-
     from .types import (
         CacheEntry,
         DynamoCallback,
@@ -600,7 +598,9 @@ def remove_from_cache(f: Any) -> None:
     elif hasattr(getattr(f, "forward", None), "__code__"):
         reset_code(f.forward.__code__)
     else:
-        from . import reset  # type: ignore[attr-defined]
+        from . import (
+            reset,  # type: ignore[attr-defined]
+        )
 
         reset()
         log.warning("could not determine __code__ for %s", f)
@@ -1562,7 +1562,9 @@ def explain(f: Callable[..., Any], *extra_args: Any, **extra_kwargs: Any) -> Any
 
     def inner(*args: Any, **kwargs: Any) -> ExplainOutput:
         # TODO(voz): Do we want a decorator for this?
-        from . import reset  # type: ignore[attr-defined]
+        from . import (
+            reset,  # type: ignore[attr-defined]
+        )
 
         reset()
 

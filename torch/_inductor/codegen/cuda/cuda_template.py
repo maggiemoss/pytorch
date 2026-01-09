@@ -13,7 +13,6 @@ import torch
 from torch._inductor import config
 from torch._inductor.utils import clear_on_fresh_cache, Placeholder
 from torch._logging import getArtifactLogger
-
 from ...autotune_process import CUDABenchmarkRequest, TensorMeta
 from ...ir import Buffer, CUDATemplateBuffer, IRNode, Layout
 from ...utils import IndentedBuffer, unique
@@ -24,7 +23,9 @@ from .cutlass_utils import DTYPE_TO_CUTLASS_TYPE
 
 
 if TYPE_CHECKING:
-    from ...scheduler import BaseSchedulerNode  # noqa: TC004
+    from ...scheduler import (
+        BaseSchedulerNode,  # noqa: TC004
+    )
 else:
     BaseSchedulerNode = Any
 

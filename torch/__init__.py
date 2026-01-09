@@ -149,7 +149,9 @@ if __all__ != sorted(__all__):
 # Since this module is only ever added to the wheel if built for such a
 # deployment, it is always safe to attempt.
 try:
-    from . import _rocm_init  # type: ignore[attr-defined]
+    from . import (
+        _rocm_init,  # type: ignore[attr-defined]
+    )
 except ImportError:
     pass
 else:

@@ -8,7 +8,9 @@ from ao.sparsity.test_kernels import (  # noqa: F401
 )
 
 # Parametrizations
-from ao.sparsity.test_parametrization import TestFakeSparsity  # noqa: F401
+from ao.sparsity.test_parametrization import (
+    TestFakeSparsity,  # noqa: F401
+)
 
 # Scheduler
 from ao.sparsity.test_scheduler import TestCubicScheduler, TestScheduler  # noqa: F401
@@ -43,7 +45,9 @@ from ao.sparsity.test_activation_sparsifier import (  # noqa: F401
 )
 
 # Data Scheduler
-from ao.sparsity.test_data_scheduler import TestBaseDataScheduler  # noqa: F401
+from ao.sparsity.test_data_scheduler import (
+    TestBaseDataScheduler,  # noqa: F401
+)
 
 # Data Sparsifier
 from ao.sparsity.test_data_sparsifier import (  # noqa: F401
@@ -53,7 +57,9 @@ from ao.sparsity.test_data_sparsifier import (  # noqa: F401
 )
 
 # Utilities
-from ao.sparsity.test_sparsity_utils import TestSparsityUtilFunctions  # noqa: F401
+from ao.sparsity.test_sparsity_utils import (
+    TestSparsityUtilFunctions,  # noqa: F401
+)
 
 
 if __name__ == "__main__":

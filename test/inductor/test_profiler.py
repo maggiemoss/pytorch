@@ -193,7 +193,9 @@ class DynamoProfilerTests(torch._inductor.test_case.TestCase):
         "compile_threads", 1
     )  # This test monkey patches global variables, which workers don't see
     def test_inductor_profiling_triton_hooks(self):
-        from triton.compiler import CompiledKernel  # @manual
+        from triton.compiler import (
+            CompiledKernel,  # @manual
+        )
 
         from torch._inductor.runtime.triton_compat import knobs
 

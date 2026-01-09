@@ -259,7 +259,9 @@ def run_multi_process_fuzzer(
 
             # Set up progress bar
             if HAS_TQDM:
-                from tqdm import tqdm  # Import the real tqdm here
+                from tqdm import (
+                    tqdm,  # Import the real tqdm here
+                )
 
                 pbar = tqdm(
                     total=len(seeds),

@@ -13,7 +13,9 @@ from torch.ao.nn.intrinsic import (
     LinearBn1d,
     LinearReLU,
 )
-from torch.ao.nn.intrinsic.modules.fused import _FusedModule  # noqa: F401
+from torch.ao.nn.intrinsic.modules.fused import (
+    _FusedModule,  # noqa: F401
+)
 
 # Include the subpackages in case user imports from it directly
 from torch.nn.intrinsic import modules, qat, quantized  # noqa: F401

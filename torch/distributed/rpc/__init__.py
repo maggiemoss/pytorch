@@ -81,7 +81,9 @@ if is_available():
     from . import api, backend_registry, functions
     from .api import *  # noqa: F401,F403
     from .backend_registry import BackendType
-    from .options import TensorPipeRpcBackendOptions  # noqa: F401
+    from .options import (
+        TensorPipeRpcBackendOptions,  # noqa: F401
+    )
     from .server_process_global_profiler import _server_process_global_profile
 
     rendezvous_iterator: Generator[tuple[Store, int, int], None, None]

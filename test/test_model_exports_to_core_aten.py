@@ -21,7 +21,9 @@ class TestQuantizePT2EModels(TestCase):
     @pytest.mark.xfail
     @skip_if_no_torchvision
     def test_vit_aten_export(self):
-        from torchvision.models import vit_b_16  # @manual
+        from torchvision.models import (
+            vit_b_16,  # @manual
+        )
 
         m = vit_b_16(weights="IMAGENET1K_V1")
         m = m.eval()

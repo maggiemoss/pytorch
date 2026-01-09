@@ -95,7 +95,9 @@ def _parse_input_metadata(
         ValueError: If no DCP custom metadata is found in a safetensors file
     """
 
-    from safetensors.torch import _getdtype  # type: ignore[import]
+    from safetensors.torch import (
+        _getdtype,  # type: ignore[import]
+    )
 
     # Dictionary to track the full size of each tensor across all shards
     fqn_to_size_mapping: dict[str, tuple[list[int], str]] = {}

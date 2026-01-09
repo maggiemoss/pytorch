@@ -36,7 +36,9 @@ from torch.fx.graph import Argument, Graph, Node
 from torch.nn.utils.parametrize import type_before_parametrizations
 
 # importing the lib so that the quantized_decomposed ops are registered
-from ._decomposed import quantized_decomposed_lib  # noqa: F401
+from ._decomposed import (
+    quantized_decomposed_lib,  # noqa: F401
+)
 from ._equalize import convert_eq_obs, update_obs_for_equalization
 from .custom_config import ConvertCustomConfig, PrepareCustomConfig
 from .graph_module import _is_observed_module, _is_observed_standalone_module

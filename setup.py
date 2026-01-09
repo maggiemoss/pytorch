@@ -1416,7 +1416,9 @@ class concat_license_files:
         old_path = sys.path
         sys.path.append(str(THIRD_PARTY_DIR))
         try:
-            from build_bundled import create_bundled  # type: ignore[import-not-found]
+            from build_bundled import (
+                create_bundled,  # type: ignore[import-not-found]
+            )
         finally:
             sys.path = old_path
 

@@ -13,7 +13,9 @@ from torch.ao.nn.intrinsic import (
     LinearBn1d,
     LinearReLU,
 )
-from torch.ao.nn.intrinsic.modules.fused import _FusedModule  # noqa: F401
+from torch.ao.nn.intrinsic.modules.fused import (
+    _FusedModule,  # noqa: F401
+)
 
 
 __all__ = [

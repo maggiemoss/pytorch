@@ -454,7 +454,9 @@ def _write_files_from_queue(
                     }
 
                 if serialization_format == SerializationFormat.SAFETENSORS:
-                    from safetensors.torch import save  # type: ignore[import-not-found]
+                    from safetensors.torch import (
+                        save,  # type: ignore[import-not-found]
+                    )
 
                     stream.write(
                         save(

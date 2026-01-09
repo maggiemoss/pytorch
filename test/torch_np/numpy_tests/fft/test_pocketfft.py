@@ -20,11 +20,15 @@ from torch.testing._internal.common_utils import (
 if TEST_WITH_TORCHDYNAMO:
     import numpy as np
     from numpy.random import random
-    from numpy.testing import assert_allclose  # , IS_WASM
+    from numpy.testing import (
+        assert_allclose,  # , IS_WASM
+    )
 else:
     import torch._numpy as np
     from torch._numpy.random import random
-    from torch._numpy.testing import assert_allclose  # , IS_WASM
+    from torch._numpy.testing import (
+        assert_allclose,  # , IS_WASM
+    )
 
 
 skip = functools.partial(skipif, True)

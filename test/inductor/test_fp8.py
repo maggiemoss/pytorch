@@ -11,7 +11,9 @@ from torch._inductor import config, utils
 from torch._inductor.pattern_matcher import PatternMatcherPass
 from torch._inductor.test_case import run_tests, TestCase
 from torch._inductor.utils import run_and_get_code
-from torch.nn.functional import ScalingType  # type: ignore[attr-defined]
+from torch.nn.functional import (
+    ScalingType,  # type: ignore[attr-defined]
+)
 from torch.testing._internal.common_cuda import (
     _get_torch_cuda_version,
     IS_SM90,

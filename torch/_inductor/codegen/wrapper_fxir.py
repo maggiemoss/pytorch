@@ -21,7 +21,9 @@ from torch._higher_order_ops.triton_kernel_wrap import (
 )
 from torch._inductor.codecache import LambdaFuture, PyCodeCache
 from torch._inductor.runtime.triton_heuristics import CachingAutotuner
-from torch._inductor.select_algorithm import extern_kernels  # noqa: F401
+from torch._inductor.select_algorithm import (
+    extern_kernels,  # noqa: F401
+)
 from torch._inductor.utils import convert_to_symint
 from torch._inductor.virtualized import V
 from torch._library.triton import wrap_triton
@@ -37,7 +39,6 @@ from torch.utils._sympy.functions import FloorDiv
 from torch.utils._sympy.interp import _run_sympy_handler, sympy_interp
 from torch.utils._sympy.reference import OptimizedPythonReferenceAnalysis
 from torch.utils._sympy.solve import try_solve
-
 from .. import config, ir
 from ..runtime.triton_compat import Config
 from ..utils import cache_property_on_self, LineContext, ValueWithLineMap

@@ -27,9 +27,10 @@ from torch.distributed.utils import (
     _free_storage,
     _p_assert,
 )
-from torch.nn.parameter import _ParameterMeta  # type: ignore[attr-defined]
+from torch.nn.parameter import (
+    _ParameterMeta,  # type: ignore[attr-defined]
+)
 from torch.testing._internal.distributed.fake_pg import FakeProcessGroup
-
 from ._fsdp_extensions import (
     _ext_post_unflatten_transform,
     _ext_pre_flatten_transform,

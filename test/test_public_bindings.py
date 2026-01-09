@@ -10,7 +10,9 @@ import unittest
 from collections.abc import Callable
 
 import torch
-from torch._utils_internal import get_file_path_2  # @manual
+from torch._utils_internal import (
+    get_file_path_2,  # @manual
+)
 from torch.testing._internal.common_utils import (
     IS_JETSON,
     IS_MACOS,

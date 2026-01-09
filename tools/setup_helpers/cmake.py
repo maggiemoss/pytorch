@@ -29,7 +29,9 @@ try:
     from packaging.version import Version
 except ImportError:
     try:
-        from setuptools.dist import Version  # type: ignore[attr-defined,no-redef]
+        from setuptools.dist import (
+            Version,  # type: ignore[attr-defined,no-redef]
+        )
     except ImportError:
         from distutils.version import (  # type: ignore[assignment,no-redef]
             LooseVersion as Version,

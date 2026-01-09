@@ -314,12 +314,18 @@ class CacheArtifactManager:
         cache artifacts are registered in the cache registry. This is done by
         simply importing all the cache artifacts already wrapped with register call.
         """
-        from torch._dynamo.package import PrecompileCacheArtifact  # noqa: F401
-        from torch._dynamo.pgo import PGOCacheArtifact  # noqa: F401
+        from torch._dynamo.package import (
+            PrecompileCacheArtifact,  # noqa: F401
+        )
+        from torch._dynamo.pgo import (
+            PGOCacheArtifact,  # noqa: F401
+        )
         from torch._functorch._aot_autograd.autograd_cache import (  # noqa: F401
             AOTAutogradCacheArtifact,
         )
-        from torch._inductor.codecache import InductorCacheArtifact  # noqa: F401
+        from torch._inductor.codecache import (
+            InductorCacheArtifact,  # noqa: F401
+        )
         from torch._inductor.runtime.autotune_cache import (  # noqa: F401
             AutotuneCacheArtifact,
         )

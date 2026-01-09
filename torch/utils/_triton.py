@@ -101,7 +101,9 @@ def has_triton_tma_device() -> bool:
 
             # new API
             try:
-                from triton.language import make_tensor_descriptor  # noqa: F401
+                from triton.language import (
+                    make_tensor_descriptor,  # noqa: F401
+                )
 
                 return True
             except ImportError:
@@ -136,7 +138,9 @@ def has_triton_stable_tma_api() -> bool:
             and not torch.version.hip
         ) or torch.xpu.is_available():
             try:
-                from triton.language import make_tensor_descriptor  # noqa: F401
+                from triton.language import (
+                    make_tensor_descriptor,  # noqa: F401
+                )
 
                 return True
             except ImportError:

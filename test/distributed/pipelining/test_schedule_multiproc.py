@@ -34,7 +34,9 @@ from torch.distributed.pipelining.schedules import (
     FORWARD,
     OVERLAP_F_B,
 )
-from torch.distributed.pipelining.stage import _PipelineStageBase  # noqa: TC002
+from torch.distributed.pipelining.stage import (
+    _PipelineStageBase,  # noqa: TC002
+)
 from torch.nn.modules.loss import MSELoss
 from torch.testing._internal.common_distributed import (
     MultiProcContinuousTest,

@@ -1,6 +1,7 @@
 # mypy: allow-untyped-defs
-from torch.fx.experimental.unification import Var  # type: ignore[attr-defined]
-
+from torch.fx.experimental.unification import (
+    Var,  # type: ignore[attr-defined]
+)
 from ._compatibility import compatibility
 
 

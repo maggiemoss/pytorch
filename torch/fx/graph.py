@@ -25,7 +25,6 @@ import torch.utils._pytree as pytree
 from torch._C import _fx_map_arg as map_arg, _NodeIter
 from torch._library.opaque_object import get_opaque_obj_repr, is_opaque_value_type
 from torch.utils._dtype_abbrs import dtype_abbrs
-
 from . import _pytree as fx_pytree
 from ._compatibility import compatibility
 from .immutable_collections import immutable_dict
@@ -37,8 +36,12 @@ log = logging.getLogger(__name__)
 __all__ = ["PythonCode", "CodeGen", "Graph"]
 
 if TYPE_CHECKING:
-    from ._symbolic_trace import Tracer  # noqa: F401
-    from .graph_module import GraphModule  # noqa: F401
+    from ._symbolic_trace import (
+        Tracer,  # noqa: F401
+    )
+    from .graph_module import (
+        GraphModule,  # noqa: F401
+    )
 
 
 # Mapping of builtins to their `typing` equivalent.

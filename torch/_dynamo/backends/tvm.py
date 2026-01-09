@@ -33,7 +33,6 @@ from typing import Any, Optional
 
 import torch
 from torch import fx
-
 from .common import device_from_inputs, fake_tensor_unsupported
 from .registry import register_backend
 
@@ -53,8 +52,12 @@ def tvm(
         options = MappingProxyType({"scheduler": None, "trials": 20000, "opt_level": 3})
     assert options is not None
     import tvm  # type: ignore[import]
-    from tvm import relay  # type: ignore[import]
-    from tvm.contrib import graph_executor  # type: ignore[import]
+    from tvm import (
+        relay,  # type: ignore[import]
+    )
+    from tvm.contrib import (
+        graph_executor,  # type: ignore[import]
+    )
 
     jit_mod = torch.jit.trace(gm, example_inputs)
     device = device_from_inputs(example_inputs)

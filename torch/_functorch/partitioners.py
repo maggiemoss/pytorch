@@ -43,7 +43,6 @@ from torch.fx.experimental.symbolic_shapes import (
 from torch.fx.passes import graph_drawer
 from torch.utils._ordered_set import OrderedSet
 from torch.utils.checkpoint import CheckpointPolicy
-
 from . import config
 from ._activation_checkpointing.graph_info_provider import GraphInfoProvider
 from ._activation_checkpointing.knapsack import (
@@ -1504,7 +1503,9 @@ def functionalize_rng_ops(
         return torch.device("cpu")
 
     def get_sample_rng_state(device: Optional[torch.device]):
-        from torch._guards import detect_fake_mode  # noqa: F401
+        from torch._guards import (
+            detect_fake_mode,  # noqa: F401
+        )
 
         fake_mode = detect_fake_mode()
         assert fake_mode is not None

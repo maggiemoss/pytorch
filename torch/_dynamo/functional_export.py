@@ -748,7 +748,9 @@ def _dynamo_graph_capture_for_export(
                 _dynamic_shapes
             )
 
-            from . import reset  # type: ignore[attr-defined]
+            from . import (
+                reset,  # type: ignore[attr-defined]
+            )
 
             reset()
 

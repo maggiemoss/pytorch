@@ -2,7 +2,9 @@ from dataclasses import dataclass, field
 from datetime import datetime
 
 #  pyrefly: ignore [missing-import]
-from dataclasses_json import DataClassJsonMixin  # type: ignore[import-not-found]
+from dataclasses_json import (
+    DataClassJsonMixin,  # type: ignore[import-not-found]
+)
 
 
 _DATA_MODEL_VERSION = 1.5

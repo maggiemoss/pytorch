@@ -3,7 +3,9 @@
 import functools
 from unittest import expectedFailure as xfail, skipIf
 
-from pytest import raises as assert_raises  # , assert_raises_regex,
+from pytest import (
+    raises as assert_raises,  # , assert_raises_regex,
+)
 
 from torch.testing._internal.common_utils import (
     instantiate_parametrized_tests,

@@ -4,7 +4,6 @@ from dataclasses import dataclass, field
 from typing import Any, Optional, TYPE_CHECKING, Union
 
 import torch
-
 from ._dim_entry import _match_levels, DimEntry
 from ._tensor_info import TensorInfo
 
@@ -246,7 +245,9 @@ def invoke_getitem(iinfo: IndexingInfo) -> Any:
 
 
 def getsetitem(self: Any, index: Any, tensors_have_dims: bool) -> IndexingInfo:
-    from . import DimList  # Import DimList for type checking
+    from . import (
+        DimList,  # Import DimList for type checking
+    )
 
     can_call_original_getitem = not tensors_have_dims
 

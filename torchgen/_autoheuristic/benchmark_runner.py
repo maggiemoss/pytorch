@@ -4,7 +4,9 @@ import time
 from abc import abstractmethod
 from typing import Any
 
-from tqdm import tqdm  # type: ignore[import-untyped]
+from tqdm import (
+    tqdm,  # type: ignore[import-untyped]
+)
 
 import torch
 

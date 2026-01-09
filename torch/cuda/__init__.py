@@ -24,7 +24,6 @@ import torch
 import torch._C
 from torch._utils import _dummy_type, _LazySeedTracker, classproperty
 from torch.types import Device
-
 from . import _device_limits, gds
 from ._utils import _get_device_index
 from .graphs import (
@@ -39,7 +38,9 @@ from .streams import Event, ExternalStream, Stream
 
 
 try:
-    from torch._C import _cudart  # type: ignore[attr-defined]
+    from torch._C import (
+        _cudart,  # type: ignore[attr-defined]
+    )
 except ImportError:
     _cudart = None
 

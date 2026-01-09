@@ -40,7 +40,6 @@ from torch.fx.node import _get_qualified_name
 from torch.utils._ordered_set import OrderedSet
 from torch.utils._sympy.singleton_int import SingletonInt
 from torch.utils._sympy.symbol import symbol_is_type, SymT
-
 from .. import async_compile, config, ir
 from ..codecache import output_code_log
 from ..ir import IRNode, ReinterpretView
@@ -301,8 +300,12 @@ def user_defined_triton_kernel_transitive_closure_source_code(kernel) -> str:
 
     # Also include any possible kernel being called indirectly
     import triton
-    from triton import JITFunction  # type: ignore[name-defined, attr-defined]
-    from triton.language import constexpr  # type: ignore[name-defined]
+    from triton import (
+        JITFunction,  # type: ignore[name-defined, attr-defined]
+    )
+    from triton.language import (
+        constexpr,  # type: ignore[name-defined]
+    )
 
     # global constexpr vars handled above
     symbols_included = OrderedSet([kernel.__name__])
@@ -1231,7 +1234,9 @@ class PythonWrapperCodegen(CodeGen):
         try:
             # Only add empty_strided_p2p() if distributed and SymmetricMemory
             # is available
-            from torch._C._distributed_c10d import _SymmetricMemory  # noqa: F401
+            from torch._C._distributed_c10d import (
+                _SymmetricMemory,  # noqa: F401
+            )
 
             self.header.splice(
                 """
@@ -1264,7 +1269,9 @@ class PythonWrapperCodegen(CodeGen):
         )
 
         try:
-            from torch._C import _cuda_getCurrentRawStream  # noqa: F401
+            from torch._C import (
+                _cuda_getCurrentRawStream,  # noqa: F401
+            )
 
             self.kernel_autotune_defs.splice(
                 """

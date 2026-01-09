@@ -16,9 +16,10 @@ from torch._inductor.codegen.cpp_gemm_template import CppGemmTemplate
 from torch._inductor.remote_gemm_autotune_cache import gen_best_config
 from torch._inductor.virtualized import ops, V
 from torch.fx.experimental.proxy_tensor import make_fx
-from torch.nn.functional import ScalingType  # type: ignore[attr-defined]
+from torch.nn.functional import (
+    ScalingType,  # type: ignore[attr-defined]
+)
 from torch.torch_version import TorchVersion
-
 from .. import config as inductor_config, distributed_autotune
 from ..codegen.cuda.gemm_template import CUTLASS2xGemmTemplate, CUTLASS3xGemmTemplate
 from ..codegen.rocm.ck_tile_universal_gemm_template import CKTileGemmTemplate
@@ -226,7 +227,6 @@ class DecomposeKSugraphTemplate(SubgraphTemplate):
         k_split: int,
     ) -> SubgraphChoiceCaller:
         from torch._dispatch.python import enable_python_dispatcher
-
         from ..decomposition import select_decomp_table
 
         name = f"decompose_k_mm_{k_split}_split"
@@ -266,7 +266,6 @@ class ContiguousTemplate(SubgraphTemplate):
         layout: Layout,
     ) -> SubgraphChoiceCaller:
         from torch._dispatch.python import enable_python_dispatcher
-
         from ..decomposition import select_decomp_table
 
         with enable_python_dispatcher():

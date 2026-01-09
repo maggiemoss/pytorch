@@ -10,10 +10,11 @@ import torch
 from torch._inductor.runtime.runtime_utils import next_power_of_2
 from torch._inductor.scheduler import MixOrderReduction
 from torch.utils._sympy.value_ranges import bound_sympy
-
 from . import config
 from .codecache import write_text
-from .kernel_inputs import KernelInputs  # noqa: TC001
+from .kernel_inputs import (
+    KernelInputs,  # noqa: TC001
+)
 from .kernel_template_choice import make_ktc_generator
 from .metrics import get_metric_table, is_metric_table_enabled
 from .runtime.hints import DeviceProperties, ReductionHint

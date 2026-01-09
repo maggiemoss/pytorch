@@ -11,7 +11,9 @@ import time
 import warnings
 from concurrent.futures import as_completed, ThreadPoolExecutor
 
-from . import _prctl_pr_set_pdeathsig  # type: ignore[attr-defined]
+from . import (
+    _prctl_pr_set_pdeathsig,  # type: ignore[attr-defined]
+)
 
 
 ENV_VAR_PARALLEL_START = "TORCH_MP_PARALLEL_START"

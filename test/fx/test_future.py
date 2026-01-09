@@ -1,6 +1,8 @@
 # Owner(s): ["module: fx"]
 
-from __future__ import annotations  # type: ignore[attr-defined]
+from __future__ import (
+    annotations,  # type: ignore[attr-defined]
+)
 
 import torch
 from torch.fx import symbolic_trace

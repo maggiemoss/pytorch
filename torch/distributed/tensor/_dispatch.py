@@ -41,7 +41,9 @@ from torch.utils._python_dispatch import return_and_correct_aliasing
 try:
     from torch.utils import _cxx_pytree as pytree
 except ImportError:
-    from torch.utils import _pytree as pytree  # type: ignore[no-redef]
+    from torch.utils import (
+        _pytree as pytree,  # type: ignore[no-redef]
+    )
 
 aten = torch.ops.aten
 logger = logging.getLogger(__name__)

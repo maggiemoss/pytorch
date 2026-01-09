@@ -15,7 +15,9 @@ REPO_ROOT = (
 ).resolve()
 sys.path.append(str(REPO_ROOT / "torch" / "utils"))
 
-from hipify import hipify_python  # type: ignore[import]
+from hipify import (
+    hipify_python,  # type: ignore[import]
+)
 
 
 parser = argparse.ArgumentParser(

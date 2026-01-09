@@ -24,7 +24,9 @@ _ZERO_POINT: Optional[Union[float, torch.fx.Node]] = None
 
 
 def int_to_valid_dtype(val: int) -> torch.dtype:
-    from torch._export.converter import _TORCH_ENUM_TO_DTYPE  # No circular import.
+    from torch._export.converter import (
+        _TORCH_ENUM_TO_DTYPE,  # No circular import.
+    )
 
     if isinstance(val, torch.dtype):
         return val

@@ -36,7 +36,9 @@ from torch.fx import GraphModule, map_arg
 from torch.fx.graph import Graph, Node
 
 # importing the lib so that the quantized_decomposed ops are registered
-from ._decomposed import quantized_decomposed_lib  # noqa: F401
+from ._decomposed import (
+    quantized_decomposed_lib,  # noqa: F401
+)
 from .custom_config import PrepareCustomConfig
 
 

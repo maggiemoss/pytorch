@@ -3,7 +3,9 @@ import logging
 from contextlib import contextmanager
 
 import torch
-from torch._C import DispatchKey  # @manual
+from torch._C import (
+    DispatchKey,  # @manual
+)
 from torch._functorch._aot_autograd.utils import KNOWN_TYPES
 from torch._higher_order_ops.utils import autograd_not_implemented
 from torch._library.fake_class_registry import (

@@ -7,9 +7,10 @@ from typing_extensions import final, override
 
 import torch._inductor.async_compile  # noqa: F401 required to warm up AsyncCompile pools
 from torch._inductor.output_code import CompiledFxGraphConstants, OutputCode
-
 from .compile_fx import _CompileFxKwargs, _InProcessFxCompile, FxCompile
-from .output_code import complex_memory_overlap  # noqa: F401
+from .output_code import (
+    complex_memory_overlap,  # noqa: F401
+)
 
 
 # When async compile works with cache, remove the disabling below
@@ -22,7 +23,6 @@ if TYPE_CHECKING:
 
     from torch._inductor.utils import InputType
     from torch.fx import GraphModule
-
     from .compile_fx_ext import _OutOfProcessFxCompile, _WireProtocolPickledOutput
 
 

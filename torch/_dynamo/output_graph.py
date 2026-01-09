@@ -60,7 +60,9 @@ from torch._library.opaque_object import is_opaque_type
 from torch._subclasses.fake_tensor import FakeTensor
 from torch._utils_internal import signpost_event
 from torch.export.dynamic_shapes import _ConstraintTarget
-from torch.fx._lazy_graph_module import _make_graph_module  # type: ignore[attr-defined]
+from torch.fx._lazy_graph_module import (
+    _make_graph_module,  # type: ignore[attr-defined]
+)
 from torch.fx.experimental._backward_state import BackwardState
 from torch.fx.experimental.symbolic_shapes import (
     free_symbols,
@@ -74,7 +76,6 @@ from torch.fx.node import Target
 from torch.fx.passes.runtime_assert import insert_deferred_runtime_asserts
 from torch.utils._ordered_set import OrderedSet
 from torch.utils._python_dispatch import is_traceable_wrapper_subclass
-
 from . import config, exc, logging as torchdynamo_logging, variables
 from .backends.registry import CompiledFn, CompilerFn
 from .bytecode_transformation import (

@@ -92,7 +92,6 @@ from torch.nn.modules.lazy import LazyModuleMixin
 from torch.utils._python_dispatch import is_traceable_wrapper_subclass
 from torch.utils._triton import has_triton, has_triton_package
 from torch.utils.hooks import RemovableHandle
-
 from .graph_utils import _get_flat_args
 
 
@@ -128,9 +127,10 @@ except ModuleNotFoundError:
 try:
     import torch._logging
     import torch._numpy as tnp
-    from torch._guards import detect_fake_mode  # noqa: F401
+    from torch._guards import (
+        detect_fake_mode,  # noqa: F401
+    )
     from torch._logging import LazyString
-
     from . import config
 
     # NOTE: Make sure `NP_SUPPORTED_MODULES` and `NP_TO_TNP_MODULE` are in sync.
@@ -2957,7 +2957,9 @@ def dict_keys_repr(const_keys: Any, *, local: Any) -> str:
 GLOBAL_KEY_PREFIX = "__dict_key"
 
 
-from torch._subclasses import UnsupportedFakeTensorException  # noqa: F401
+from torch._subclasses import (
+    UnsupportedFakeTensorException,  # noqa: F401
+)
 
 
 def get_safe_global_name(tx: InstructionTranslatorBase, root: str, obj: Any) -> str:
@@ -3397,7 +3399,6 @@ def extract_fake_example_value(node: torch.fx.Node, required: bool = True) -> An
         return node.meta["example_value"]
     elif required:
         from torch._dynamo.exc import unimplemented
-
         from . import graph_break_hints
 
         unimplemented(
@@ -3487,7 +3488,6 @@ def get_fake_value(
         by further wrapping them as this graph's fakes.
     """
     from torch.utils._sympy.value_ranges import ValueRangeError
-
     from .exc import (
         TorchRuntimeError,
         unimplemented,
@@ -3944,7 +3944,9 @@ def tensor_always_has_static_shape(
 def lazy_format_graph_tabular(fn_name: str, gm: torch.fx.GraphModule) -> Any:
     def inner() -> str:
         try:
-            from tabulate import tabulate  # TODO: Check that this is installed
+            from tabulate import (
+                tabulate,  # TODO: Check that this is installed
+            )
         except ImportError:
             return (
                 "Tabulate module missing, please install tabulate to log the graph in tabular format, logging code instead:\n"
@@ -4190,7 +4192,6 @@ def build_invoke_subgraph_variable(**options: Any) -> Any:
 
 def build_checkpoint_variable(**options: Any) -> Any:
     import torch._higher_order_ops.wrap as higher_order_ops
-
     from .variables.higher_order_ops import TorchHigherOrderOperatorVariable
 
     # TODO - This is a temporary situation where we have two versions of

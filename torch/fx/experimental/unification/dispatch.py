@@ -1,6 +1,8 @@
 from functools import partial
 
-from .multipledispatch import dispatch as _dispatch  # type: ignore[import]
+from .multipledispatch import (
+    dispatch as _dispatch,  # type: ignore[import]
+)
 
 
 namespace = {}  # type: ignore[var-annotated]

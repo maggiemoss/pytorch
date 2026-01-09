@@ -14,13 +14,14 @@ from torch._inductor.compile_worker.subproc_pool import (
     SubprocPool,
 )
 from torch._inductor.utils import clear_caches
-
 from .compile_fx_ext import (
     _OutOfProcessFxCompile,
     _WireProtocolPickledInput,
     _WireProtocolPickledOutput,
 )
-from .output_code import complex_memory_overlap  # noqa: F401
+from .output_code import (
+    complex_memory_overlap,  # noqa: F401
+)
 
 
 if TYPE_CHECKING:

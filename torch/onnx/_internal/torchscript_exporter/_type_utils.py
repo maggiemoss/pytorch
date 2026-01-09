@@ -14,7 +14,9 @@ from torch.onnx import errors
 
 if typing.TYPE_CHECKING:
     # Hack to help mypy to recognize torch._C.Value
-    from torch import _C  # noqa: F401
+    from torch import (
+        _C,  # noqa: F401
+    )
 
 ScalarName = Literal[
     "Byte",

@@ -13,7 +13,9 @@ from torch.distributed.tensor.placement_types import Placement
 try:
     from torch.utils import _cxx_pytree as pytree
 except ImportError:
-    from torch.utils import _pytree as pytree  # type: ignore[no-redef]
+    from torch.utils import (
+        _pytree as pytree,  # type: ignore[no-redef]
+    )
 
 
 __all__ = ["local_map"]

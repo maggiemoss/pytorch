@@ -20,6 +20,8 @@ def get_tool_path_by_platform(platform: TestPlatform) -> str:
 
         return get_llvm_tool_path()  # type: ignore[no-any-return]
     else:
-        from ..oss.utils import get_llvm_tool_path  # type: ignore[no-redef]
+        from ..oss.utils import (
+            get_llvm_tool_path,  # type: ignore[no-redef]
+        )
 
         return get_llvm_tool_path()  # type: ignore[no-any-return]

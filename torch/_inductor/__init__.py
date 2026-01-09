@@ -7,8 +7,9 @@ import os
 from typing import Any, IO, Literal, Optional, TYPE_CHECKING, Union
 
 import torch.fx
-
-from .standalone_compile import CompiledArtifact  # noqa: TC001
+from .standalone_compile import (
+    CompiledArtifact,  # noqa: TC001
+)
 
 
 if TYPE_CHECKING:
@@ -105,7 +106,6 @@ def aoti_compile_and_package(
         Path to the generated artifact
     """
     from torch.export import ExportedProgram
-
     from .debug import aot_inductor_minifier_wrapper
 
     if not isinstance(exported_program, ExportedProgram):

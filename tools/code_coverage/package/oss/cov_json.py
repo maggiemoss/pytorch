@@ -1,7 +1,9 @@
 from ..tool import clang_coverage
 from ..util.setting import CompilerType, Option, TestList, TestPlatform
 from ..util.utils import check_compiler_type
-from .init import detect_compiler_type  # type: ignore[attr-defined]
+from .init import (
+    detect_compiler_type,  # type: ignore[attr-defined]
+)
 from .run import clang_run, gcc_run
 
 

@@ -13,7 +13,9 @@ try:
     # use faster C loader if available
     from yaml import CSafeLoader as YamlLoader
 except ImportError:
-    from yaml import SafeLoader as YamlLoader  # type: ignore[assignment, misc]
+    from yaml import (
+        SafeLoader as YamlLoader,  # type: ignore[assignment, misc]
+    )
 
 
 NATIVE_FUNCTIONS_PATH = "aten/src/ATen/native/native_functions.yaml"
@@ -32,7 +34,6 @@ def generate_code(
 ) -> None:
     from tools.autograd.gen_annotated_fn_args import gen_annotated
     from tools.autograd.gen_autograd import gen_autograd, gen_autograd_python
-
     from torchgen.selective_build.selector import SelectiveBuilder
 
     # Build ATen based Variable classes

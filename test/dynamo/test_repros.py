@@ -2528,7 +2528,9 @@ class ReproTests(torch._dynamo.test_case.TestCase):
 
     def test_relative_import(self):
         try:
-            from . import utils as _  # noqa: F401
+            from . import (
+                utils as _,  # noqa: F401
+            )
 
             def fn(x):
                 from .utils import tensor_for_import_testing
@@ -2551,7 +2553,9 @@ class ReproTests(torch._dynamo.test_case.TestCase):
 
     def test_relative_import_no_modulename(self):
         try:
-            from . import utils as _  # noqa: F401
+            from . import (
+                utils as _,  # noqa: F401
+            )
 
             def fn(x):
                 from . import utils

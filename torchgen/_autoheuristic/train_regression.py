@@ -4,9 +4,15 @@ import warnings
 
 import numpy as np
 import pandas as pd  # type: ignore[import-untyped]
-from scipy.stats import gmean  # type: ignore[import-untyped]
-from sklearn.model_selection import train_test_split  # type: ignore[import-untyped]
-from sklearn.tree import DecisionTreeRegressor  # type: ignore[import-untyped]
+from scipy.stats import (
+    gmean,  # type: ignore[import-untyped]
+)
+from sklearn.model_selection import (
+    train_test_split,  # type: ignore[import-untyped]
+)
+from sklearn.tree import (
+    DecisionTreeRegressor,  # type: ignore[import-untyped]
+)
 from train import AHTrain
 
 from torch._inductor.autoheuristic.autoheuristic_utils import CHOICE_COL, FEEDBACK_COL

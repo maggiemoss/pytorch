@@ -1,7 +1,9 @@
 from typing import Any, Optional
 
 import numpy as np
-from sklearn.tree import _tree  # type: ignore[import-untyped]
+from sklearn.tree import (
+    _tree,  # type: ignore[import-untyped]
+)
 
 
 class DecisionTreeNode:

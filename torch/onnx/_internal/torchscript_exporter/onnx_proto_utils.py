@@ -98,7 +98,9 @@ def load_test_case(dir: str) -> tuple[bytes, Any, Any]:
     """
     try:
         import onnx
-        from onnx import numpy_helper  # type: ignore[attr-defined]
+        from onnx import (
+            numpy_helper,  # type: ignore[attr-defined]
+        )
     except ImportError as exc:
         raise ImportError(
             "Load test case from ONNX format failed: Please install ONNX."
@@ -133,7 +135,9 @@ def export_data(data, value_info_proto, f: str) -> None:
         f: The file to write the data to.
     """
     try:
-        from onnx import numpy_helper  # type: ignore[attr-defined]
+        from onnx import (
+            numpy_helper,  # type: ignore[attr-defined]
+        )
     except ImportError as exc:
         raise ImportError(
             "Export data to ONNX format failed: Please install ONNX."

@@ -36,7 +36,9 @@ from torch._library.fake_profile import (
     TensorMetadata,
 )
 from torch._library.infer_schema import tuple_to_list
-from torch._utils_internal import get_file_path_2  # @manual
+from torch._utils_internal import (
+    get_file_path_2,  # @manual
+)
 from torch.fx.experimental.proxy_tensor import make_fx
 from torch.fx.experimental.symbolic_shapes import ShapeEnv
 from torch.testing._internal import custom_op_db

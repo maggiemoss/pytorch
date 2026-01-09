@@ -99,7 +99,6 @@ from torch.fx.experimental.symbolic_shapes import free_unbacked_symbols, SymExpr
 from torch.fx.passes.fake_tensor_prop import FakeTensorProp
 from torch.monitor import _WaitCounter
 from torch.utils._ordered_set import OrderedSet
-
 from .._dynamo.backends.common import aot_autograd
 from .._dynamo.exc import ShortenTraceback, SkipFrame
 from ..fx._lazy_graph_module import _use_lazy_graph_module
@@ -115,7 +114,9 @@ from .fx_passes.post_grad import post_grad_passes, view_to_reshape
 from .fx_passes.pre_grad import pre_grad_passes
 from .graph import GraphLowering
 from .ir import get_device_type, IRNode
-from .output_code import complex_memory_overlap  # noqa: F401
+from .output_code import (
+    complex_memory_overlap,  # noqa: F401
+)
 from .triton_bundler import TritonBundler
 from .utils import (
     align_inputs_from_check_idxs,
@@ -137,7 +138,6 @@ if TYPE_CHECKING:
     from torch._inductor.output_code import _StrideExprStr
     from torch._ops import OpOverload
     from torch.export.pt2_archive._package_weights import Weights
-
     from .ir import ExternKernelNode
 
 

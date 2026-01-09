@@ -39,7 +39,6 @@ from torch.utils._sympy.numbers import int_oo
 from torch.utils._sympy.printers import PythonPrinter as _PythonPrinter
 from torch.utils._sympy.symbol import free_symbol_is_type, symbol_is_type, SymT
 from torch.utils._sympy.value_ranges import bound_sympy, ValueRanges
-
 from .. import config, metrics
 from ..dtype_propagation import DtypePropagationOpsHandler
 from ..ops_handler import BasicMathOpsMixin, DefaultHandler
@@ -73,7 +72,6 @@ if TYPE_CHECKING:
     from collections.abc import Callable, Iterator, MutableMapping, Sequence
 
     from torch.fx import GraphModule
-
     from ..custom_graph_pass import CustomGraphModulePass
     from ..ir import Buffer, ChoiceCaller, FixedLayout, IRNode
     from ..loop_body import LoopBody
@@ -621,9 +619,15 @@ def get_device_op_overrides(device: str) -> DeviceOpOverrides:
 
     if not device_op_overrides_dict:
         from . import cpu_device_op_overrides, mps_device_op_overrides  # noqa: F401
-        from .cuda import device_op_overrides  # noqa: F401
-        from .mtia import device_op_overrides as mtia_op_overrides  # noqa: F401
-        from .xpu import device_op_overrides as xpu_op_overrides  # noqa: F401
+        from .cuda import (
+            device_op_overrides,  # noqa: F401
+        )
+        from .mtia import (
+            device_op_overrides as mtia_op_overrides,  # noqa: F401
+        )
+        from .xpu import (
+            device_op_overrides as xpu_op_overrides,  # noqa: F401
+        )
 
     return device_op_overrides_dict[device]
 

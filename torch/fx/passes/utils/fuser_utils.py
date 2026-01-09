@@ -8,7 +8,9 @@ from torch.fx.graph import Graph
 from torch.fx.graph_module import GraphModule
 from torch.fx.node import Node
 from torch.fx.passes.tools_common import legalize_graph, NodeList, NodeSet  # noqa: F401
-from torch.fx.passes.utils import lift_subgraph_as_module  # type: ignore[attr-defined]
+from torch.fx.passes.utils import (
+    lift_subgraph_as_module,  # type: ignore[attr-defined]
+)
 
 
 @compatibility(is_backward_compatible=False)

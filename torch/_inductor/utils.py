@@ -86,8 +86,9 @@ if TYPE_CHECKING:
     from torch._prims_common import ELEMENTWISE_TYPE_PROMOTION_KIND
     from torch.fx import GraphModule
     from torch.fx.node import Node
-    from torch.nn.functional import ScalingType  # type: ignore[attr-defined]
-
+    from torch.nn.functional import (
+        ScalingType,  # type: ignore[attr-defined]
+    )
     from .codegen.common import WorkspaceArg
     from .codegen.wrapper import PythonWrapperCodegen
     from .dependencies import Dep
@@ -126,7 +127,6 @@ from torch.utils._sympy.functions import (
 )
 from torch.utils._sympy.symbol import make_symbol, SymT
 from torch.utils._sympy.value_ranges import bound_sympy, ValueRanges
-
 from . import config
 from .runtime.runtime_utils import ceildiv as runtime_ceildiv
 
@@ -398,7 +398,9 @@ def _do_bench_using_profiling(
 @functools.cache
 def has_torchvision_roi_align() -> bool:
     try:
-        from torchvision.ops import roi_align  # noqa: F401
+        from torchvision.ops import (
+            roi_align,  # noqa: F401
+        )
 
         torch._C._dispatch_has_kernel_for_dispatch_key("torchvision::nms", "Meta")
         return roi_align is not None and hasattr(
@@ -1811,7 +1813,6 @@ def can_use_tma(
       * For FP8 tensors, inner dim ≥ 32
     """
     from torch.utils._triton import has_triton_tma_device
-
     from .virtualized import V
 
     def _aligned(expr_bytes: Union[int, sympy.Expr]) -> bool:
@@ -1928,7 +1929,6 @@ def use_triton_blackwell_tma_template(
         return False
 
     from torch.utils._triton import has_triton_tensor_descriptor_host_tma
-
     from .codegen.cuda.cuda_env import is_datacenter_blackwell_arch
 
     # Blackwell template require the tensor descriptor API, not the experimental API.

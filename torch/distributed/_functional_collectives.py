@@ -10,14 +10,15 @@ import torch.distributed.distributed_c10d as c10d
 from torch._utils import _maybe_view_chunk_cat
 from torch.distributed.device_mesh import DeviceMesh
 from torch.fx.experimental.proxy_tensor import get_proxy_mode
-
 from . import _functional_collectives_impl as fun_col_impl
 
 
 try:
     from torch.utils._cxx_pytree import tree_map_only
 except ImportError:
-    from torch.utils._pytree import tree_map_only  # type: ignore[no-redef]
+    from torch.utils._pytree import (
+        tree_map_only,  # type: ignore[no-redef]
+    )
 
 
 try:

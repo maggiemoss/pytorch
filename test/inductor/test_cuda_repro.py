@@ -67,7 +67,9 @@ from torch.testing._internal.inductor_utils import skipCUDAIf
 try:
     try:
         import triton  # @manual
-        from triton import language as tl  # @manual
+        from triton import (
+            language as tl,  # @manual
+        )
     except ImportError:
         raise unittest.SkipTest("requires triton")  # noqa: B904
 

@@ -365,7 +365,9 @@ def generate_ttir(
             TritonAttrsDescriptorVersion.V2_BACKENDS,
             TritonAttrsDescriptorVersion.V3_BACKENDS_TUPLE,
         }:
-            from triton.backends.compiler import AttrsDescriptor  # noqa: F401
+            from triton.backends.compiler import (
+                AttrsDescriptor,  # noqa: F401
+            )
 
             target = triton.runtime.driver.active.get_current_target()
             backend_ = triton.compiler.compiler.make_backend(target)

@@ -33,7 +33,9 @@ if __name__ == "__main__":
 from itertools import combinations, permutations, product
 from textwrap import dedent
 
-from jit.test_fuser_common import TestFuserCommon  # noqa: F401
+from jit.test_fuser_common import (
+    TestFuserCommon,  # noqa: F401
+)
 from test_jit import (
     backward_graph,
     get_lstm_inputs,

@@ -6,7 +6,9 @@ from collections.abc import Iterable
 from dataclasses import asdict, dataclass, field
 from pathlib import Path
 from typing import Literal
-from typing_extensions import TypedDict  # Python 3.11+
+from typing_extensions import (
+    TypedDict,  # Python 3.11+
+)
 
 import generate_binary_build_matrix  # type: ignore[import]
 import jinja2

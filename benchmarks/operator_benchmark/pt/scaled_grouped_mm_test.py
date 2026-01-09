@@ -1,4 +1,6 @@
-from pt import configs  # noqa: F401
+from pt import (
+    configs,  # noqa: F401
+)
 from pt.scaled_mm_common import (
     build_equal_k_group_offs,
     get_float8_dtype,
@@ -7,7 +9,6 @@ from pt.scaled_mm_common import (
 )
 
 import operator_benchmark as op_bench
-
 import torch
 from torch.nn.functional import ScalingType
 from torch.testing._internal.common_cuda import (

@@ -7,7 +7,9 @@ import unittest
 
 import expecttest
 
-from torchgen.gen import _GLOBAL_PARSE_NATIVE_YAML_CACHE  # noqa: F401
+from torchgen.gen import (
+    _GLOBAL_PARSE_NATIVE_YAML_CACHE,  # noqa: F401
+)
 from torchgen.gen_backend_stubs import run
 
 

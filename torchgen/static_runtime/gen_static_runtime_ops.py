@@ -5,7 +5,9 @@ import itertools
 import os
 from typing import TYPE_CHECKING, TypeVar
 
-from libfb.py.log import set_simple_logging  # type: ignore[import]
+from libfb.py.log import (
+    set_simple_logging,  # type: ignore[import]
+)
 
 from torchgen import gen
 from torchgen.context import native_function_manager

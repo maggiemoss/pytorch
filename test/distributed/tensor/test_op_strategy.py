@@ -49,7 +49,9 @@ from torch.testing._internal.distributed.fake_pg import FakeStore
 try:
     from torch.utils._cxx_pytree import tree_leaves
 except ImportError:
-    from torch.utils._pytree import tree_leaves  # type: ignore[no-redef]
+    from torch.utils._pytree import (
+        tree_leaves,  # type: ignore[no-redef]
+    )
 
 
 def extract_tensor_meta(t) -> TensorMeta:

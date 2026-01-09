@@ -6,7 +6,9 @@ from typing import Any
 
 sys.path.append(str(Path(__file__).absolute().parents[1]))
 
-from benchmark_runner import BenchmarkRunner  # type: ignore[import-not-found]
+from benchmark_runner import (
+    BenchmarkRunner,  # type: ignore[import-not-found]
+)
 from benchmark_utils import (  # type: ignore[import-not-found]
     fits_in_memory,
     get_mm_tensors,
