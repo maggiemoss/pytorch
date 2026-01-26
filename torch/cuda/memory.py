@@ -1139,7 +1139,6 @@ def _save_memory_usage(filename="output.svg", snapshot=None):
     category=FutureWarning,
 )
 def _set_allocator_settings(env: str):
-
     return torch._C._accelerator_setAllocatorSettings(env)
 
 

@@ -1646,7 +1646,6 @@ class VariableBuilder:
             )
 
             dict_vt = ConstDictVariable(
-
                 result,
                 user_cls=(
                     collections.OrderedDict

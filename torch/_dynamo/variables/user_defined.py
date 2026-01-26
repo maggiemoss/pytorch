@@ -1535,7 +1535,6 @@ class UserDefinedObjectVariable(UserDefinedVariable):
                 return variables.UserMethodVariable(
                     getattribute_fn,
                     self,
-
                     source=new_source,
                 ).call_function(tx, [ConstantVariable.create(name)], {})
             except ObservedAttributeError:

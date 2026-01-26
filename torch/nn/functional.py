@@ -6647,7 +6647,6 @@ def multi_head_attention_forward(
         attn_output = torch.bmm(attn_output_weights, v)
 
         attn_output = (
-
             attn_output.transpose(0, 1).contiguous().view(tgt_len * bsz, embed_dim)
         )
         attn_output = linear(attn_output, out_proj_weight, out_proj_bias)
@@ -6683,7 +6682,6 @@ def multi_head_attention_forward(
             q, k, v, attn_mask, dropout_p, is_causal
         )
         attn_output = (
-
             attn_output.permute(2, 0, 1, 3).contiguous().view(bsz * tgt_len, embed_dim)
         )
 

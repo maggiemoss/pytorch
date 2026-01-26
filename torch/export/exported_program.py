@@ -1545,7 +1545,6 @@ class ExportedProgram:
         if transformed_gm is None:
             raise AssertionError("transformed_gm must not be None")
 
-
         if transformed_gm is self.graph_module and not res.modified:
             return self
 

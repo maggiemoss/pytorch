@@ -2887,7 +2887,6 @@ class CppCodeCache:
             **compile_command,
         )
         optimized_build_option = CppTorchDeviceOptions(
-
             compile_only=True,
             # pyrefly: ignore [bad-argument-type]
             **compile_command,

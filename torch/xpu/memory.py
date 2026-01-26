@@ -577,16 +577,11 @@ if not hasattr(torch._C, "_XPUMemPool"):
     torch._C.__dict__["_xpu_endAllocateToPool"] = _dummy_type("_xpu_endAllocateToPool")
     torch._C.__dict__["_xpu_releasePool"] = _dummy_type("_xpu_releasePool")
 
-from torch._C import (  # noqa: F401;
-    # pyrefly: ignore [missing-module-attribute]
+from torch._C import (  # noqa: F401;; pyrefly: ignore [missing-module-attribute]
     _xpu_beginAllocateCurrentThreadToPool,
-    # pyrefly: ignore [missing-module-attribute]
     _xpu_endAllocateToPool,
-    # pyrefly: ignore [missing-module-attribute]
     _xpu_releasePool,
-    # pyrefly: ignore [missing-module-attribute]
     _xpu_XPUAllocator,
-    # pyrefly: ignore [missing-module-attribute]
     _XPUMemPool,
 )
 

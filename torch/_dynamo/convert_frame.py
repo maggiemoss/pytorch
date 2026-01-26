@@ -1113,7 +1113,6 @@ def get_traced_fn(mod: Any) -> tuple[FunctionType, Optional[object]]:
 
         resolved_call = mod.__call__
         if hasattr(resolved_call, "__self__"):
-
             resolved_call = resolved_call.__func__
 
         # Mirrored from NNModuleVariable.call_function:

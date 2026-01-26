@@ -78,7 +78,6 @@ class KnapsackEvaluator:
             predecessor_queue = deque(
                 [
                     dependency
-
                     for dependency, v in node_graph.in_edges(node)
                     if dependency not in already_computed
                 ]

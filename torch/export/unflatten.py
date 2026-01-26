@@ -1496,7 +1496,6 @@ class _ModuleFrame:
 
     def print(self, *args, **kwargs):
         if self.verbose:
-
             print(*args, **kwargs)
 
     def run_from(self, node_idx):

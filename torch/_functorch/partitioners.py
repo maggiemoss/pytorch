@@ -1248,7 +1248,6 @@ def default_partition(
             )
         bw_module = reordering_to_mimic_autograd_engine(bw_module)
 
-
     if config.enable_activation_offloading:
         from ._activation_offloading.activation_offloading import (
             enable_activation_offloading,

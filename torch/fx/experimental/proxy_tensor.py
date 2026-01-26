@@ -2127,7 +2127,6 @@ class _ModuleStackTracer(PythonKeyTracer):
                 # Warning: We blow away our own attributes here to mimic the base class
                 # - so don't expect `self.x` to do anything useful.
 
-
                 self.__class__ = type(
                     base.__class__.__name__,
                     (self.__class__, base.__class__),
