@@ -258,7 +258,7 @@ class LazyConstantVariable(LazyVariableTracker):
     _nonvar_fields = {"_type_guard_installed", *LazyVariableTracker._nonvar_fields}
 
     @staticmethod
-    def create(  # pyrefly: ignore[bad-override]
+    def create(
         value: Any,
         source: Any,
         **options: Any,

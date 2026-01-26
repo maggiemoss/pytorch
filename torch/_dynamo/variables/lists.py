@@ -902,7 +902,7 @@ class ListVariable(CommonListMethodsVariable):
                 key = guard_if_dyn(key)
 
                 try:
-                    # pyrefly: ignore[unsupported-operation]
+
                     self.items[key] = value
                 except (IndexError, TypeError) as e:
                     raise_observed_exception(

@@ -244,7 +244,7 @@ def set_per_process_memory_fraction(fraction: float, device: Device = None) -> N
     device = _get_device_index(device, optional=True)
     if not isinstance(fraction, float):
         raise TypeError("Invalid type for fraction argument, must be `float`")
-    # pyrefly: ignore [missing-attribute]
+
     torch._C._xpu_setMemoryFraction(fraction, device)
 
 
@@ -578,10 +578,15 @@ if not hasattr(torch._C, "_XPUMemPool"):
     torch._C.__dict__["_xpu_releasePool"] = _dummy_type("_xpu_releasePool")
 
 from torch._C import (  # noqa: F401;
+    # pyrefly: ignore [missing-module-attribute]
     _xpu_beginAllocateCurrentThreadToPool,
+    # pyrefly: ignore [missing-module-attribute]
     _xpu_endAllocateToPool,
+    # pyrefly: ignore [missing-module-attribute]
     _xpu_releasePool,
+    # pyrefly: ignore [missing-module-attribute]
     _xpu_XPUAllocator,
+    # pyrefly: ignore [missing-module-attribute]
     _XPUMemPool,
 )
 

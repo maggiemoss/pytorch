@@ -658,7 +658,7 @@ class VariableBuilder:
         items = dict(build_key_value(k, v) for k, v in value.items())
 
         # Create a dict_vt to be used in the mapping proxy variable
-        # pyrefly: ignore[bad-argument-type]
+
         dict_vt = ConstDictVariable(items, source=None)
         result = MappingProxyVariable(dict_vt, source=self.source)
         return self.tx.output.side_effects.track_mutable(value, result)
@@ -1646,7 +1646,7 @@ class VariableBuilder:
             )
 
             dict_vt = ConstDictVariable(
-                # pyrefly: ignore[bad-argument-type]
+
                 result,
                 user_cls=(
                     collections.OrderedDict

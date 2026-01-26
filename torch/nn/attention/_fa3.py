@@ -42,6 +42,7 @@ class _FA3Handle:
     def remove(self) -> None:
         self.library = None
         # Clear the C++ flag
+        # pyrefly: ignore [missing-attribute]
         torch._C._set_sdp_use_fa3(False)
 
 
@@ -63,6 +64,7 @@ def register_flash_attention_fa3(
     _fa3_import_module(module_path)
 
     # Expose FA3 registration status to C++
+    # pyrefly: ignore [missing-attribute]
     torch._C._set_sdp_use_fa3(True)
 
     return _FA3Handle(_fa3_register_kernels())

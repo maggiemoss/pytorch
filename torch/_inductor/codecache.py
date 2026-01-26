@@ -2239,7 +2239,7 @@ end
                     data_ptr,
                     ctypes.POINTER(ctypes.c_ubyte * nbytes),
                 )
-                # pyrefly: ignore [missing-attribute]
+
                 raw_bytes = bytes(raw_array.contents)
                 return raw_bytes if all_cuda else _pad_to_alignment(raw_bytes)
 
@@ -2887,7 +2887,7 @@ class CppCodeCache:
             **compile_command,
         )
         optimized_build_option = CppTorchDeviceOptions(
-            # pyrefly: ignore [bad-argument-type]
+
             compile_only=True,
             # pyrefly: ignore [bad-argument-type]
             **compile_command,

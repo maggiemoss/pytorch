@@ -1668,7 +1668,7 @@ class MetaConverter(Generic[_TensorT]):
                                             "t.data must not be None when copy_data is True"
                                         )
                                     _safe_copy(r.real_tensor, t.data)  # type: ignore[attr-defined]
-                        # pyrefly: ignore [bad-return]
+
                         return r
 
                     r = _to_fake_tensor(t)
@@ -1894,7 +1894,7 @@ class MetaConverter(Generic[_TensorT]):
                             # the metadata of the inner tensor.
                             # So instead, we now have a dedicated fn to set autograd history,
                             # without inadvertently changing other metadata.
-                            # pyrefly: ignore [bad-argument-type]
+
                             r = self._backward_error(r)
 
                     s = t.storage

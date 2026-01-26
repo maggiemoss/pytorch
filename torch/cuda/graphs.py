@@ -561,7 +561,7 @@ def make_graphed_callables(
                         f"static_grad_inputs must be tuple, got {type(static_grad_inputs)}"
                     )
                 return tuple(
-                    # pyrefly: ignore [bad-argument-type]
+
                     b.detach() if b is not None else b
                     for b in static_grad_inputs
                 )

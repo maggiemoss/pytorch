@@ -293,7 +293,7 @@ class FunctionalTensor(torch.Tensor):
             )
         return super().to(*args, **kwargs)
 
-    # pyrefly: ignore[bad-override]
+
     def cuda(
         self, device: torch.device | int | str | None = None, *args: Any, **kwargs: Any
     ) -> torch.Tensor:

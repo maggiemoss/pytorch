@@ -1035,9 +1035,9 @@ class SetVariable(ConstDictVariable):
             else:
                 # VariableTracker - realize to install guards
                 realized_items.append(item.realize())
-        # pyrefly: ignore[bad-assignment]
+
         items = dict.fromkeys(realized_items, SetVariable._default_value())
-        # pyrefly: ignore[bad-argument-type]
+
         super().__init__(items, **kwargs)
 
     def debug_repr(self) -> str:
